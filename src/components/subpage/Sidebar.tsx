@@ -40,11 +40,11 @@ export default function Sidebar() {
     return (
         <>
             
-            <header className='fixed top-0 left-0 z-40 w-full h-16 flex items-center justify-between px-10' style={{backgroundColor: 'var(--sidebar-color)'}}>
-                <div className='text-2xl text-white font-bold'>
-                    (System Name)
+            <header className='fixed top-0 left-0 z-40 w-full h-16 flex items-center justify-between px-3 sm:px-5 md:px-7 lg:px-10' style={{backgroundColor: 'var(--sidebar-color)'}}>
+                <div className='text-md sm:text-lg md:text-xl lg:text-2xl text-white font-bold'>
+                    OLPP Cemetery Profiling
                 </div>
-                <div className='text-white flex flex-col items-center'>
+                <div className='text-white flex flex-col items-center text-sm sm:text-md md:text-lg lg:text-xl'>
 
                     <div className='capitalize'>
                         {userData.firstname} {userData.lastname}

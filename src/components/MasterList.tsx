@@ -10,6 +10,7 @@ import { AlertSuccess } from './messages/AlertMessage'
 import { useNavigate } from 'react-router'
 import MasterListCards from './subpage/MasterListCards'
 import Dialog from './subpage/Dialog'
+import InputTag from './inputData/InputTag'
 
 type Tgroup = {
     id: number,
@@ -102,6 +103,7 @@ export default function MasterList() {
     const [deleteDialog, setDeleteDialog] = useState(false)
     const [deleteLoading, setDeleteLoading] = useState(false)
     const [editModalOpen, setEditModalOpen] = useState(false)
+    const [search, setSearch] = useState("")
     
     //selected ids
     const [deleteIds, setDeleteIds] = useState<TdeleteIds>({id: 0, image_name: ""})
@@ -110,6 +112,7 @@ export default function MasterList() {
     const [groups, setGroups] = useState<Tgroup[]>([])
     const [slots, setSlots] = useState<Tslot[]>([])
     const [records, setRecords] = useState<TgetRecords[]>([])
+    const [fullrecords, setFullRecords] = useState<TgetRecords[]>([])
     const [editData, seteditData] = useState<TeditData>()
     
     const openAddModal = () =>{
@@ -153,6 +156,7 @@ export default function MasterList() {
     }
 
     const getRecords = async () =>{
+        setSearch("")
         try {
             const res = await axios.get(`${API_LINK}/getRecords`,{
                 headers: {
@@ -161,6 +165,7 @@ export default function MasterList() {
                 }
             })
             setRecords(res.data)
+            setFullRecords(res.data)
         } catch (error) {
             console.log(error)
         }
@@ -312,6 +317,20 @@ export default function MasterList() {
         
     }
 
+    const searchData = (searchValue: string) =>{
+        setSearch(searchValue)
+        const resFilter = fullrecords.filter((data: TgetRecords)=>{
+            return (
+                data.group_name.toLocaleUpperCase().includes(searchValue.toLocaleUpperCase())||
+                data.slot_name.toLocaleUpperCase().includes(searchValue.toLocaleUpperCase())||
+                data.firstname.toLocaleUpperCase().includes(searchValue.toLocaleUpperCase())||
+                data.lastname.toLocaleUpperCase().includes(searchValue.toLocaleUpperCase())||
+                data.suffix.toLocaleUpperCase().includes(searchValue.toLocaleUpperCase())
+            )
+        })
+        setRecords(resFilter)
+    }
+
     useEffect(() => {
             if (isOpenAlert) {
                 const timer = setTimeout(() => {
@@ -341,11 +360,16 @@ export default function MasterList() {
                         Master List
                     </h1>
                     
-                    <div className="flex flex-row justify-end">
+                    <div className="flex flex-row justify-end mb-2">
                         <div className="w-[10%]">
                             <ButtonTag text='Add' icon={FaPlus} onClick={openAddModal}/>
                         </div>
                     </div>
+
+                    <div className='w-full sm:w-3/4 md:w-1/2 lg:w-1/4 bg-white py-3 px-2 shadow rounded-lg sm:px-5'>
+                        <InputTag label='Search' type='text' flex='flex-col' selector={'search'} valueData={search} onChange={e=>searchData(e.target.value)}/>
+                    </div>
+
                     <div className='grid mt-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                         {records.map((data: TgetRecords) => {
                             return(

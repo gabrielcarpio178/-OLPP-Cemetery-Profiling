@@ -344,7 +344,7 @@ export default function Groups() {
                 
                 {isDeleteOpen&&<Dialog isOPen={isDeleteOpen} title="Are you sure you want to delete this group?" setAction={getActionDelete} id={deleteId} isLoading={deleteLoading} />}
                 
-                {isOpenDeteils&&<SlotDeteils isOpenDialog={isOpenDeleteDialog} isLoadingDetiels={isLoadingDetiels} isOpenModal={slotModal} isOpen={isOpenDeteils} closeModal={()=>setIsOpenDeteils(false)} title='Slot Deteils' getSlotData={slotData} getEditData={getEditData}/>}
+                {isOpenDeteils&&<SlotDeteils isOpenDialog={isOpenDeleteDialog} isLoadingDetiels={isLoadingDetiels} isOpenModal={slotModal} isOpen={isOpenDeteils} closeModal={()=>setIsOpenDeteils(false)} title='Slot Details' getSlotData={slotData} getEditData={getEditData}/>}
                 
                 {isDialogOpen&&<Dialog isOPen={isDialogOpen} title='Are you sure you want to delete this slot?' setAction={getActionDeleteSlot} id={deleteSlot_id} />}
 

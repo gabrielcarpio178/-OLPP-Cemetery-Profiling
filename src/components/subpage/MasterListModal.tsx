@@ -253,7 +253,7 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
                                     {slots_id.length!==0&&<SelectTag flex={'flex-col w-[50%]'} selector={'slot_id'} label={'slot'} datas={slots_id} disabled={slots_id.length===0} valueData={slot_id?.toString()} onChange={e=>setSlot_id(parseInt(e.target.value))}/>}
                                 </div>
                                 <div className='flex flex-row gap-x-2'>
-                                    <InputTag selector='firstname' type='text' flex='flex-col' label='Name' hasError={errors.firstname} errorMessage={errorMessage} valueData={firstname} onChange={e=>setfirstname(e.target.value)} />
+                                    <InputTag selector='firstname' type='text' flex='flex-col' label='Firstname' hasError={errors.firstname} errorMessage={errorMessage} valueData={firstname} onChange={e=>setfirstname(e.target.value)} />
                                     <InputTag selector='lastname' type='text' flex='flex-col' label='Lastname' hasError={errors.lastname} errorMessage={errorMessage} valueData={lastname} onChange={e=>setlastname(e.target.value)} />
                                 </div>
                                 <div className='flex flex-row gap-x-2'>
