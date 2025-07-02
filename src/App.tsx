@@ -5,7 +5,7 @@ import Login from "./components/Login"
 import Payment from "./components/Payment";
 import Settings from "./components/Settings";
 import ProtectedRoutes from "./components/util/ProtectedRoute";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import MasterList from "./components/MasterList";
 import Records from "./components/subpage/Records"
 import History from "./components/subpage/History"
@@ -22,6 +22,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/groups" element={<Groups />} />
             <Route path="/payment" element={<Payment/>} >
+              <Route index element={<Navigate to="records" replace />} />
               <Route path="records" element={<Records/>}/>
               <Route path="history" element={<History/>}/>
             </Route>

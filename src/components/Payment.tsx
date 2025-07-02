@@ -1,16 +1,44 @@
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import Sidebar from './subpage/Sidebar'
 import 'animate.css'
-import { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom';
+import PayForm from './subpage/PayForm';
+import { useEffect, useState } from 'react';
+
+type Turl = {
+    slotId: number,
+    slotName: string,
+    groupName: string
+}
 
 export default function Payment() {
-    const navigate = useNavigate()
-    useEffect(()=>{
-        navigate("records")
-    },[])
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const slotId = searchParams.get("slotId") ?? '';
+    const slotName = searchParams.get("slotName") ?? ''
+    const groupName = searchParams.get("groupName") ?? ''
+
+    const slotInfos: Turl = {
+        slotId: parseInt(slotId),
+        slotName: slotName,
+        groupName: groupName
+    }
+
+    //interaction
+    const [isPayFormOpen, setIsPayFormOpen] = useState(false);
+    
+    const cancelPay = ()=>{
+        navigate("/payment/records")
+    }
+
+    useEffect(() => {
+        setIsPayFormOpen(slotId.length !== 0);
+    }, [slotId]);
     return (
             <>
                 <Sidebar/>
+                {isPayFormOpen&&<PayForm title='Payment' isOpen={isPayFormOpen} slotInfo={slotInfos} onClose={cancelPay}/>}
+                
                 <div className="pt-28 px-5 sm:mt-0 sm:pt-20 sm:ml-64 capitalize animate__animated animate__fadeIn min-h-screen bg-gray-100">
                     <h1 className='font-bold text-2xl'>
                         Payment

@@ -3,6 +3,7 @@ import ButtonTag from '../inputData/ButtonTag'
 import { FaPenToSquare, FaTrash, FaCreditCard } from 'react-icons/fa6'
 import axios from 'axios'
 import UserData from '../../UserData'
+import { useNavigate } from 'react-router'
 
 type TdeleteRecords = {
     id: number,
@@ -45,6 +46,8 @@ interface Irecords {
 const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_name, image_name, middlename, slot_name, slot_id, group_id, suffix, born, died, deleteRecord=()=>{}, editRecord=()=>{}}) => {
     const API_LINK = import.meta.env.VITE_APP_API_LNK
     const token = UserData().token
+    const navigate = useNavigate();
+    
     async function convertImg(image: string): Promise<Blob>{
         const res = await axios.get(`${API_LINK}/auth/uploads/${image}`, {
             headers: { 
@@ -76,7 +79,7 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
                     </div>
                 </div>
                 <div className="px-6 pb-4 flex flex-row gap-x-2">
-                    <ButtonTag icon={FaCreditCard} />
+                    <ButtonTag icon={FaCreditCard} onClick={()=>navigate(`/payment/records?slotId=${slot_id}&slotName=${slot_name}&groupName=${group_name}`)} />
                     <ButtonTag icon={FaPenToSquare} onClick={handleEdit} color='bg-blue-500 hover:bg-blue-600'/>
                     <ButtonTag icon={FaTrash} onClick={()=>deleteRecord({id, image_name})} color='bg-red-500 hover:bg-red-600'/>
                 </div>

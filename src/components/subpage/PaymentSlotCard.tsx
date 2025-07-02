@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 
 type Tslot = {
     record_id: number|null
@@ -22,14 +23,13 @@ type TNameSlot = {
 }
 
 
-
-
 interface Islot {
+    group_name: string,
     slots: Tslot[]
 }
 
-const PaymentSlotCard: React.FC<Islot> = ({slots}) => {
-
+const PaymentSlotCard: React.FC<Islot> = ({slots, group_name}) => {
+    const navigate = useNavigate();
     const [dataSlot, setDataSlot] = useState<TNameSlot[]>([]);
     function getSlot(): void {
         const fullnames = slots.reduce<TNameSlot[]>((acc, slot) => {
@@ -67,6 +67,10 @@ const PaymentSlotCard: React.FC<Islot> = ({slots}) => {
     
         setDataSlot(fullnames.reverse());
     }
+
+    const handlePay = (id: number, slotName: string): void => {
+        navigate(`/payment/records?slotId=${id}&slotName=${slotName}&groupName=${group_name}`);
+    }
     
 
     useEffect(()=>{
@@ -82,7 +86,7 @@ const PaymentSlotCard: React.FC<Islot> = ({slots}) => {
                 {dataSlot.map((slots: TNameSlot)=>{
                     return (
                         <div key={slots.slot_id}>
-                            <div className='text-lg text-white uppercase bg-[#001656] hover:rounded-md hover:bg-gray-700 cursor-pointer p-1 hover:scale-105 transition-transform duration-100'>
+                            <div onClick={()=>handlePay(slots.slot_id, slots.slot_name)} className='text-lg text-white uppercase bg-[#001656] hover:rounded-md hover:bg-gray-700 cursor-pointer p-1 hover:scale-105 transition-transform duration-100'>
                                 {slots.slot_name}
                             </div>
                             <div>
