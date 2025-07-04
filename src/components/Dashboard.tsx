@@ -33,6 +33,7 @@ export default function Dashboard() {
                 <h1 className='font-bold text-2xl'>
                     Dashboard
                 </h1>
+                <p className='text-sm'>Under development</p>
                 <div className='mt-6'>
                     <div className='flex flex-col md:flex-row gap-2'>
                         <div className='grid md:grid-rows-2 gap-3 md:w-1/3 w-full grid-rows-1'>
