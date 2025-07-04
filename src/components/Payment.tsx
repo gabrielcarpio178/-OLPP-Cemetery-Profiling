@@ -4,6 +4,15 @@ import 'animate.css'
 import { useSearchParams } from 'react-router-dom';
 import PayForm from './subpage/PayForm';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
+import UserData from '../UserData';
+import { AlertSuccess } from './messages/AlertMessage';
+
+type TsendAmount = {
+    slotId: number,
+    fullname: string,
+    amount: number
+}
 
 type Turl = {
     slotId: number,
@@ -14,6 +23,15 @@ type Turl = {
 export default function Payment() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+
+    const API_LINK = `${import.meta.env.VITE_APP_API_LNK}/auth`
+    const token = UserData().token
+
+    //interaction
+    const [isPayFormOpen, setIsPayFormOpen] = useState(false);
+    const [btnIsLoading, setBtnIsLoading] = useState(false)
+    const [isOpenAlertMessage, setIsOpenAlertMessage] = useState(false)
+
     const slotId = searchParams.get("slotId") ?? '';
     const slotName = searchParams.get("slotName") ?? ''
     const groupName = searchParams.get("groupName") ?? ''
@@ -24,12 +42,41 @@ export default function Payment() {
         groupName: groupName
     }
 
-    //interaction
-    const [isPayFormOpen, setIsPayFormOpen] = useState(false);
-    
     const cancelPay = ()=>{
         navigate("/payment/records")
     }
+
+    const getAmountData = async (data: TsendAmount) =>{
+        setBtnIsLoading(true)
+        try {
+            const res = await axios.post(`${API_LINK}/sendPayment`, data, {
+                headers:{
+                    'Content-type':'application/x-www-form-urlencoded',
+                    "authorization" : `bearer ${token}`,
+                }
+            })
+            if(res.status===200){
+                setIsOpenAlertMessage(true)
+                setBtnIsLoading(false)
+                navigate("/payment")
+                return;
+            }
+        } catch (error) {
+            setBtnIsLoading(false)
+            return error
+        }
+    }
+    
+    
+
+    useEffect(() => {
+        if (isOpenAlertMessage) {
+            const timer = setTimeout(() => {
+                setIsOpenAlertMessage(false);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpenAlertMessage]);
 
     useEffect(() => {
         setIsPayFormOpen(slotId.length !== 0);
@@ -37,7 +84,9 @@ export default function Payment() {
     return (
             <>
                 <Sidebar/>
-                {isPayFormOpen&&<PayForm title='Payment' isOpen={isPayFormOpen} slotInfo={slotInfos} onClose={cancelPay}/>}
+                {isOpenAlertMessage&&<AlertSuccess isOpen={isOpenAlertMessage} message="Successfully" />}
+
+                {isPayFormOpen&&<PayForm title='Payment' isOpen={isPayFormOpen} slotInfo={slotInfos} onClose={cancelPay} sendAmountData={getAmountData} btnIsLoading={btnIsLoading}/>}
                 
                 <div className="pt-28 px-5 sm:mt-0 sm:pt-20 sm:ml-64 capitalize animate__animated animate__fadeIn min-h-screen bg-gray-100">
                     <h1 className='font-bold text-2xl'>

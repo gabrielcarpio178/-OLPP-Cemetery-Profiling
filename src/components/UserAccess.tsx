@@ -235,7 +235,7 @@ export default function UserAccess() {
         if (isMessage) {
             const timer = setTimeout(() => {
                 setMessage(false);
-            }, 2000);
+            }, 3000);
             return () => clearTimeout(timer);
         }
     }, [isMessage]);

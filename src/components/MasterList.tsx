@@ -335,7 +335,7 @@ export default function MasterList() {
             if (isOpenAlert) {
                 const timer = setTimeout(() => {
                     setIsOpenAlert(false);
-                }, 2000);
+                }, 3000);
                 return () => clearTimeout(timer);
             }
         }, [isOpenAlert]);

@@ -327,7 +327,7 @@ export default function Groups() {
         if (isShowMessageSuccess) {
             const timer = setTimeout(() => {
                 setIsShowMessageSuccess(false);
-            }, 2000);
+            }, 3000);
             return () => clearTimeout(timer);
         }
     }, [isShowMessageSuccess]);

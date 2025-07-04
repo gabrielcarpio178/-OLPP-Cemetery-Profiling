@@ -1,13 +1,114 @@
+import UserData from '../UserData'
 import Sidebar from './subpage/Sidebar'
 import 'animate.css'
+import ourLadyOfPeaceFull from './images/our-lady-of-peace-full.png'
+import { TbCurrencyPeso } from 'react-icons/tb'
+import moment from 'moment'
+import { useEffect, useState } from 'react'
+import { IconContext } from 'react-icons/lib'
+import { FaClock } from 'react-icons/fa6'
+import {BarGraph, CircleGraph, LineGraph} from './subpage/Graph'
+
 export default function Dashboard() {
+    const userAccount = UserData().user
+    
+    const [datetime, setDatetime] = useState("Loading...")
+    const getCurrentDatetime = () =>{
+        const now = moment();
+        const formattedDateTime = now.format('MMMM DD, YYYY h:mm:ss a');
+        setDatetime(formattedDateTime);
+    }
+
+    useEffect(()=>{
+        setInterval(function() {
+            getCurrentDatetime()
+        }, 1000);
+    },[])
+
+
     return (
         <>
-            <Sidebar/>
+            <Sidebar />
             <div className="pt-28 px-5 sm:mt-0 sm:pt-20 sm:ml-64 capitalize animate__animated animate__fadeIn min-h-screen bg-gray-100">
-                <h1>
-                    Under Development Dashboard
+                <h1 className='font-bold text-2xl'>
+                    Dashboard
                 </h1>
+                <div className='mt-6'>
+                    <div className='flex flex-col md:flex-row gap-2'>
+                        <div className='grid md:grid-rows-2 gap-3 md:w-1/3 w-full grid-rows-1'>
+                            <div className='before:content-[""] before:h-full before:bg-white/50 relative before:absolute before:w-full before:rounded-lg before:z-[999]'>
+                                <div className='h-[35vh] w-full flex flex-row gap-x-2 p-2 rounded-lg shadow-lg relative overflow-hidden ' style={{ backgroundColor: 'var(--body-color)' }}>
+                                    <div className='z-[999]'>
+                                        <div className='flex flex-col justify-between p-3 h-full'>
+                                            <div>
+                                                <h1 className='text-3xl'>
+                                                    Welcome
+                                                </h1>
+                                                <div className='font-bold text-4xl'>
+                                                    {`${userAccount.firstname} ${userAccount.lastname}`}
+                                                </div>
+                                            </div>
+                                            <div className='text-lg w-1/2 text-center rounded shadow-lg text-white' style={{ backgroundColor: 'var(--sidebar-color)' }}>
+                                                {userAccount.role}
+                                            </div>
+                                        </div>
+                                        <div className='absolute -bottom-10 -right-10'>
+                                            <img src={ourLadyOfPeaceFull} alt="Our lady of peace image" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className='h-[35vh] w-full  grid grid-cols-2 gap-2'>
+                                <div className='rounded-lg shadow-lg flex flex-col items-center justify-center'>
+                                    <div className='flex flex-col items-center gap-y-1'>
+                                        <h2 className='text-xl font-bold'>
+                                            Total Payment
+                                        </h2>
+                                        <div className='text-2xl flex items-center'>
+                                            <TbCurrencyPeso/><span>2000</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className='rounded-lg shadow-lg flex flex-col items-center justify-center'>
+                                    <div className='flex flex-col items-center  gap-y-1'>
+                                        <div className='text-xl font-bold'>
+                                            Total Burial
+                                        </div>
+                                        <div className='text-2xl'>
+                                            2000
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className='rounded-lg shadow-lg col-span-2 flex flex-row items-center'>
+                                    <div className='w-1/4 flex flex-row justify-center'>
+                                        <IconContext.Provider value={{ color: "black", size: "4em" }}>
+                                            <FaClock/>
+                                        </IconContext.Provider>
+                                    </div>
+                                    <div className='flex flex-col w-3/4'>
+                                        <div className="text-2xl font-bold">DateTime</div>
+                                        <div className="font-bold text-lg">{datetime}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className='md:w-3/4 w-full grid grid-cols-1 md:grid-cols-2 gap-2'>
+                            <div className='rounded-lg shadow-lg flex items-center justify-center'>
+                                <BarGraph/>
+                            </div>
+                            <div className='rounded-lg shadow-lg flex items-center justify-center'>
+                                <CircleGraph/>
+                            </div>
+                            <div className='rounded-lg shadow-lg flex items-center justify-center'>
+                                <LineGraph/>
+                            </div>
+                            <div className='rounded-lg shadow-lg flex items-center justify-center'>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </>
     )

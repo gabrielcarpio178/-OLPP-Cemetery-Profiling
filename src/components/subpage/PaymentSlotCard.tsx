@@ -8,17 +8,20 @@ type Tslot = {
     middlename: string|null
     slot_id: number
     slot_name: string
-    suffix: string|null
+    suffix: string|null,
+    amount: number|null
 }
 
 type Tfullname = {
     name: string|null,
     record_id: number|null
+    amount: number|null
 }
 
 type TNameSlot = {
     slot_id: number,
     slot_name: string,
+    amount: number|null
     fullname: Tfullname[]|null,
 }
 
@@ -42,13 +45,15 @@ const PaymentSlotCard: React.FC<Islot> = ({slots, group_name}) => {
                         slot.lastname,
                         slot.suffix !== "N/A" ? slot.suffix : ""
                     ].filter(Boolean).join(" "),
-                    record_id: slot.record_id
+                    record_id: slot.record_id,
+                    amount: slot.amount
                 };
     
                 if (existing) {
                     existing.fullname?.push(fullname);
                 } else {
                     acc.push({
+                        amount: slot.amount,
                         slot_id: slot.slot_id,
                         slot_name: slot.slot_name,
                         fullname: [fullname]
@@ -56,6 +61,7 @@ const PaymentSlotCard: React.FC<Islot> = ({slots, group_name}) => {
                 }
             } else {
                 acc.push({
+                    amount: slot.amount,
                     slot_id: slot.slot_id,
                     slot_name: slot.slot_name,
                     fullname: null
@@ -64,7 +70,6 @@ const PaymentSlotCard: React.FC<Islot> = ({slots, group_name}) => {
     
             return acc;
         }, []);
-    
         setDataSlot(fullnames.reverse());
     }
 
@@ -76,9 +81,6 @@ const PaymentSlotCard: React.FC<Islot> = ({slots, group_name}) => {
     useEffect(()=>{
         getSlot();
     },[])
-
-
-    
 
     return (
         <>
@@ -97,8 +99,14 @@ const PaymentSlotCard: React.FC<Islot> = ({slots, group_name}) => {
                                     </div>
                                 ))
                             ) : (
-                                <div className='text-xs text-gray-500 p-2 bg-white border-b border-gray-200'>available</div>
-                            )}
+                                <>
+                                    {slots.amount===null?(
+                                        <div className='text-xs text-gray-500 p-2 bg-white border-b border-gray-200'>available</div>
+                                    ):(
+                                        <div className='text-xs text-gray-500 p-2 bg-white border-b border-gray-200'>Reserve</div>
+                                    )}
+                                </>
+                                )}
                             </div>
                         </div>
                     )

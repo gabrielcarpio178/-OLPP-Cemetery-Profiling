@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { FaX } from 'react-icons/fa6'
 import InputTag from '../inputData/InputTag'
 import ButtonTag from '../inputData/ButtonTag'
+import axios from 'axios'
 
 type TslotInfo = {
     slotId : number,
@@ -9,17 +10,45 @@ type TslotInfo = {
     groupName: string
 }
 
+type TsendAmount = {
+    slotId: number,
+    fullname: string,
+    amount: number
+}
+
 interface IPayForm {
     title: string
     isOpen: boolean,
     slotInfo: TslotInfo,
-    onClose: ()=>void
+    onClose: ()=>void,
+    sendAmountData: (data: TsendAmount)=>void,
+    btnIsLoading: boolean
 }
 
-const PayForm: React.FC<IPayForm> = ({title, isOpen, slotInfo, onClose =()=>{}}) =>  {
+const PayForm: React.FC<IPayForm> = ({title, isOpen, slotInfo, onClose =()=>{}, sendAmountData=()=>{}, btnIsLoading}) =>  {
+    //dispay error
+    const [hasError, setHasError] = useState({fullname: false, amount: false})
+    const [errorMessage, setErrorMessage] = useState("")
+
     const sendAmount = async (e: React.FormEvent<HTMLFormElement>) =>{
         e.preventDefault()
-        alert("wait lang danay wala pa natapos. HAHAHA")
+        const formData = new FormData(e.currentTarget);
+        const formValues: TsendAmount = {
+            slotId: slotInfo.slotId,
+            fullname: formData.get("fullname")?.toString()??'',
+            amount: parseInt(formData.get("amount")?.toString()??"0")
+        }
+        const res = await sendAmountData(formValues)
+        if (axios.isAxiosError(res)){
+            if(res.status===400){
+                const serverErrors = res.response?.data.details[0];
+                setErrorMessage(serverErrors.message);
+                setHasError({fullname: serverErrors.path[0]==="fullname", amount: serverErrors.path[0]==="amount"});
+            }
+        }else{
+            setErrorMessage("");
+            setHasError({fullname: false, amount: false});
+        }
     }
     return (
         <div className={`${isOpen?"":"hide"}flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-screen max-h-full bg-black/50`}>
@@ -40,11 +69,11 @@ const PayForm: React.FC<IPayForm> = ({title, isOpen, slotInfo, onClose =()=>{}})
                     <div className="p-4 md:p-5">
                         <form className='flex flex-col gap-y-4' onSubmit={sendAmount}>
                             <div className='flex flex-col'>
-                                <InputTag selector='fullname' flex="flex-col" label="full name" type='text' />
+                                <InputTag selector='fullname' flex="flex-col" label="full name" type='text' hasError={hasError.fullname} errorMessage={errorMessage}/>
                                 <p className='text-sm text-black/50'>Optional - N/A for no fullname</p>
                             </div>
-                            <InputTag selector='amount' flex='flex-col' label="Amount" type='number' />
-                            <ButtonTag text='Submit' type='submit' />
+                            <InputTag selector='amount' flex='flex-col' label="Amount" type='number' hasError={hasError.amount} errorMessage={errorMessage} />
+                            <ButtonTag text='Submit' type='submit' disabled={btnIsLoading} />
                         </form>
                     </div>
                 </div>

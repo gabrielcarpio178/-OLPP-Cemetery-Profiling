@@ -14,6 +14,7 @@ type SlotItem = {
     lastname: string|null,
     middlename: string|null,
     suffix: string|null
+    amount: number|null
 }
 
 type GroupedItem = {
@@ -26,7 +27,8 @@ type GroupedItem = {
         firstname: string | null;
         lastname: string|null,
         middlename: string|null,
-        suffix: string|null
+        suffix: string|null,
+        amount: number|null
     }[];
 };
 
@@ -66,7 +68,11 @@ const Records = () => {
         };
         const searchRes = searchDatas.filter((data: SlotItem)=>{
             return (
-                data.firstname?.toLocaleUpperCase().includes(searchText.toLocaleUpperCase())
+                data.firstname?.toLocaleUpperCase().includes(searchText.toLocaleUpperCase())||
+                data.group_name.toLocaleUpperCase().includes(searchText.toLocaleUpperCase())||
+                data.slot_name.toLocaleUpperCase().includes(searchText.toLocaleUpperCase())||
+                data.lastname?.toLocaleUpperCase().includes(searchText.toLocaleUpperCase())||
+                data.middlename?.toLocaleUpperCase().includes(searchText.toLocaleUpperCase())
             )
         })
         searchContent(searchRes)
@@ -84,7 +90,8 @@ const Records = () => {
                 firstname: item.firstname,
                 lastname: item.lastname,
                 middlename: item.middlename,
-                suffix: item.suffix
+                suffix: item.suffix,
+                amount: item.amount
             };
 
             if (existingGroup) {
@@ -106,24 +113,27 @@ const Records = () => {
 
     return(
         <> 
-        <div className="bg-white shadow rounded-lg mt-3 sm:w-full md:w-1/2 lg:w-1/4 p-3">
-            <InputTag label="Search" flex="flex-col" type="text" selector={"search"} valueData={search} onChange={e=>getSearch(e.target.value)} />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 mt-3 w-full gap-4">
-            {allData.map((data: GroupedItem)=>{
-                return (
-                    <div key={data.group_id} className='bg-white shadow rounded-lg sm:px-3 sm:py-1 uppercase flex flex-row gap-x-3'>
-                        <div className="flex flex-col w-full">
-                            <div className="font-semibold">
-                                Group: {data.group_name}
-                            </div>
-                            <PaymentSlotCard slots={data.slots} group_name={data.group_name}/>
-                        </div>
-                    </div>
-                )
-            })}
-        </div>
+        <div className="animate__animated animate__fadeIn">
+
         
+            <div className="bg-white shadow rounded-lg mt-3 sm:w-full md:w-1/2 lg:w-1/4 p-3">
+                <InputTag label="Search" flex="flex-col" type="text" selector={"search"} valueData={search} onChange={e=>getSearch(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 mt-3 w-full gap-4">
+                {allData.map((data: GroupedItem)=>{
+                    return (
+                        <div key={data.group_id} className='bg-white shadow rounded-lg sm:px-3 sm:py-1 uppercase flex flex-row gap-x-3'>
+                            <div className="flex flex-col w-full">
+                                <div className="font-semibold">
+                                    Group: {data.group_name}
+                                </div>
+                                <PaymentSlotCard slots={data.slots} group_name={data.group_name}/>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
             
         </>
     )
