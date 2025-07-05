@@ -10,10 +10,31 @@ import {
     type ChartOptions,
     PointElement,
     LineElement,
+    RadialLinearScale,
 } from 'chart.js';
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import type React from 'react';
+import { Bar, Doughnut, Line, Pie } from 'react-chartjs-2';
+import moment from 'moment';
+import { useMemo } from 'react';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-export const BarGraph = () => {
+type TBarGraph = {
+    month: string,
+    total_amount: number
+}
+
+interface IDataBar {
+    datas: TBarGraph[]
+}
+
+function generateRGBAColorArray(count: number, alpha = 0.5) {
+    return Array.from({ length: count }, (_, i) => {
+        const hue = Math.floor((360 / count) * i); // evenly spaced hue
+        return `hsla(${hue}, 70%, 50%, ${alpha})`;
+    });
+}
+
+export const BarGraph: React.FC<IDataBar> = ({datas}) => {
 
     ChartJS.register(
         CategoryScale,
@@ -21,10 +42,11 @@ export const BarGraph = () => {
         BarElement,
         Title,
         Tooltip,
-        Legend
+        Legend,
+        ChartDataLabels
     );
 
-    const options = {
+    const options: ChartOptions<'bar'>  = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
@@ -37,66 +59,66 @@ export const BarGraph = () => {
             },
         },
     };
-    const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+    const labels: string[] = datas.map((data: TBarGraph)=>{
+        return (moment(data.month, 'YYYY-MM').format('MMMM'))
+    });
     const data = {
     labels,
     datasets: [
         {
-            label: 'Dataset 2',
-            data: [1,2,3,4,5,6,7],
-            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+            label: 'Monthly Collection',
+            data: datas.map((data: TBarGraph)=>{return (data.total_amount)}),
+            backgroundColor: useMemo(() => generateRGBAColorArray(labels.length), [labels.length]),
         },
     ],};
     return (
         <div className="w-full h-[200px]">
-
-        <Bar options={options} data={data} />
+            <Bar options={options} data={data} />
         </div>
     )
 }
 
-export const CircleGraph = () =>{
-    ChartJS.register(ArcElement, Tooltip, Legend);
+type TPieGraph ={
+    group_name: string
+    record_count: number
+}
+
+interface IDataCircle {
+    datas: TPieGraph[]
+}
+
+export const CircleGraph: React.FC<IDataCircle> = ({datas}) =>{
+    ChartJS.register(ArcElement, Tooltip, Legend, );
+
+    const labels = datas.map((data: TPieGraph)=>{return data.group_name.toLocaleUpperCase()})
 
     const data = {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: labels,
         datasets: [
         {
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-            ],
-            borderWidth: 1,
+            label: 'Burial Count',
+            data: datas.map((data: TPieGraph)=>{
+                return data.record_count
+            }),
+            backgroundColor:  useMemo(() => generateRGBAColorArray(labels.length), [labels.length]),
+            borderWidth: 0.5,
         },
     ],};
     
     const options: ChartOptions<'pie'> = {
     responsive: true,
     maintainAspectRatio: false,
-        plugins: {
+    plugins: {
             legend: {
-                position: 'right',
-            },
-            title: {
-                display: true,
-                text: 'Total Burial per Group',
-            },
+            position: 'right',
         },
-    };
+        title: {
+            display: true,
+            text: 'Total Burial per Group',
+        },
+    },
+};  
+
 
     return (
         <div className="w-full h-[200px]">
@@ -105,7 +127,16 @@ export const CircleGraph = () =>{
     )
 }
 
-export const LineGraph = () =>{
+type TLineGraph = {
+    death_count: number,
+    death_year: number
+}
+
+interface IDataLine {
+    datas: TLineGraph[]
+}
+
+export const LineGraph: React.FC<IDataLine> = ({datas}) =>{
     ChartJS.register(
         CategoryScale,
         LinearScale,
@@ -116,7 +147,7 @@ export const LineGraph = () =>{
         Legend
     );
 
-    const options = {
+    const options: ChartOptions<'line'> = {
         responsive: true,
         plugins: {
                 legend: {
@@ -124,22 +155,81 @@ export const LineGraph = () =>{
             },
             title: {
                 display: true,
-                text: 'Total Burials per Month',
+                text: 'Total Burials per Year',
             },
         },
     };
 
-    const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+    const labels: number[] = datas.map((data: TLineGraph)=>{
+        return data.death_year
+    });
 
     const data = {
         labels,
         datasets: [
         {
-            label: 'Dataset 1',
-            data: [1,2,3,4,5,6,7],
-            borderColor: 'rgb(255, 99, 132)',
-            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            label: 'Annual Burial Count',
+            data: datas.map((data: TLineGraph)=>{
+                return data.death_count
+            }),
+            borderColor: useMemo(() => generateRGBAColorArray(labels.length), [labels.length])[0],
+            backgroundColor: useMemo(() => generateRGBAColorArray(labels.length), [labels.length])[0],
         }],
     };
-    return <Line options={options} data={data} />;
+    return (
+        <div className="w-full h-[200px]">
+            <Line options={options} data={data} />
+        </div>
+    );
+}
+
+type TDoughnutGraph = {
+    group_name: string,
+    total_amount: number
+}
+
+interface IDoughnutGraph {
+    datas: TDoughnutGraph[]
+}
+export const DoughnutGraph: React.FC<IDoughnutGraph> = ({datas})=>{
+    ChartJS.register(RadialLinearScale, ArcElement, Tooltip, Legend);
+
+    const labels: string[] = datas.map((data: TDoughnutGraph)=>{
+        return (data.group_name.toLocaleUpperCase())
+    })
+
+    const data = {
+        labels: labels,
+        datasets: [
+            {
+            label: '# of Votes',
+            data: datas.map((data: TDoughnutGraph)=>{
+                return (data.total_amount)
+            }),
+            backgroundColor: useMemo(() => generateRGBAColorArray(labels.length), [labels.length]),
+            },
+        ],
+    };
+    const options: ChartOptions<'doughnut'> = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+            animateScale: true,
+            animateRotate: true,
+        },
+        plugins: {
+            legend: {
+                position: 'right',
+            },
+            title: {
+                display: true,
+                text: 'Total Amount per Group',
+            },
+        },
+    };
+    return (
+        <div className="w-full h-[200px]">
+            <Doughnut data={data} options={options} />;
+        </div>
+    )
 }
