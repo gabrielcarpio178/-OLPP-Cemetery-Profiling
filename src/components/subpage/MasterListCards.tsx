@@ -61,11 +61,11 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
     // }
 
 
-    const CLOUD_NAME = import.meta.env.VITE_APP_API_IMAGE
+    const cloudStorage = import.meta.env.VITE_APP_API_IMAGE
     const CLOUD_VERSION = import.meta.env.VITE_APP_API_CLOUD_VERSION
 
     async function convertImg(image: string): Promise<Blob> {
-        const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${CLOUD_VERSION}/uploads/${image}`;
+        const url = `https://res.cloudinary.com/${cloudStorage}/image/upload/${CLOUD_VERSION}/uploads/${image}`;
 
         const res = await axios.get(url, {
             responseType: 'blob',
@@ -83,7 +83,7 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
     return (
         <>
             <div className="max-w-full rounded overflow-hidden shadow-lg">
-                <img className="w-full" src={`https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${CLOUD_VERSION}/uploads/${image_name}`} alt={`${firstname} ${middlename}. ${lastname} ${suffix!=="N/A"?`${suffix}.`:""}`} />
+                <img className="w-full" src={`https://res.cloudinary.com/${cloudStorage}/image/upload/${CLOUD_VERSION}/uploads/${image_name}`} alt={`${firstname} ${middlename}. ${lastname} ${suffix!=="N/A"?`${suffix}.`:""}`} />
                 <div className="px-6 py-4">
                     <div className="font-bold text-xl mb-2">{firstname} {middlename}. {lastname} <span className='capitalize'>{suffix!=="N/A"?`${suffix}.`:""}</span></div>
                     <div className="text-gray-700 text-base flex flex-col gap-y-1">
