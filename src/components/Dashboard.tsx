@@ -40,7 +40,7 @@ export default function Dashboard() {
     const token = UserData().token
     const API_LINK = import.meta.env.VITE_APP_API_LNK+"/auth"
     //interaction
-    const [datetime, setDatetime] = useState("Loading...")
+    const [datetime, setDatetime] = useState("")
     const [isLoading, setIsLoading] = useState(false)
 
     //datas
@@ -153,7 +153,7 @@ export default function Dashboard() {
                                     </div>
                                     <div className='flex flex-col w-3/4'>
                                         <div className="text-2xl font-bold">DateTime</div>
-                                        <div className="font-bold text-lg">{datetime}</div>
+                                        <div className="font-bold text-lg">{!isLoading?datetime:"Loading..."}</div>
                                     </div>
                                 </div>
                             </div>
