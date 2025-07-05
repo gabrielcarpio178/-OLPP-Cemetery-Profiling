@@ -29,7 +29,7 @@ const GroupsCards:React.FC<TypeContent> = ({showDelete=()=>{}, getData, sendData
                     </div>
                     <button className='bg-blue-700 cursor-pointer text-white w-full rounded hover:bg-[#001656]' onClick={()=>deteils({id: getData.id})}>Slots</button>
                 </div>
-                <div className='flex flex-col w-1/4 gap-y-2'>
+                <div className='flex flex-col md:w-1/4 gap-y-2'>
                     <ButtonTag icon={FaPenToSquare} onClick={()=>sendData(getData)} color='bg-blue-500 hover:bg-blue-600' />
                     <ButtonTag icon={FaTrash} color='bg-red-500 hover:bg-red-600' onClick={()=>showDelete({id: getData.id})} />
                     

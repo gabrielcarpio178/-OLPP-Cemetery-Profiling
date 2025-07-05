@@ -14,6 +14,8 @@ import Dialog from './subpage/Dialog'
 import SlotDeteils from './subpage/SlotDeteils'
 import SlotFormModal from './subpage/SlotFormModal'
 
+
+
 type Grouptype = {
     id: number;
     group_name: string;
@@ -50,6 +52,7 @@ export default function Groups() {
     const [isLoadingDetiels, setLoadingDetiels] = useState(false)
     const [isDialogOpen, setDialogOpen] = useState(false)
     const [isOpenSlotModalFormEdit, setOpenSlotModalFormEdit] = useState(false)
+    const [isLoadingContent, setIsloadingContent] = useState(true)
 
     const [slotData, setSlotData] = useState<TSlotData[]>([])
     const [groudsData, setGroupData] = useState<Grouptype[]>([])
@@ -125,6 +128,7 @@ export default function Groups() {
 
     //get all group data
     const getGroupData = async () => {
+        setIsloadingContent(true)
         try {
             
             const res = await axios.get(`${API_LINK}/getGroups`, {
@@ -135,6 +139,7 @@ export default function Groups() {
             })
             setGroupData(res.data)
             setAllData(res.data)
+            setIsloadingContent(false)
         } catch (error) {
             console.log(error)
         }
@@ -357,6 +362,12 @@ export default function Groups() {
                     <h1 className='font-bold text-2xl'>
                         Groups
                     </h1>
+                    {isLoadingContent && (
+                        <div className="flex justify-center items-center h-full mt-8">
+                            Loading...
+                        </div>
+                    )}
+                    {!isLoadingContent&&(
                     <div className='mt-8'>
                         <div className="flex flex-row justify-end">
                             <div className="w-[10%]">
@@ -379,8 +390,8 @@ export default function Groups() {
                             }
                             
                         </div>
-
                     </div>
+                    )}
                 </div>
             </>
         )

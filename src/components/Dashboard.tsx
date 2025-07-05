@@ -10,6 +10,7 @@ import { FaClock } from 'react-icons/fa6'
 import {BarGraph, CircleGraph, DoughnutGraph, LineGraph} from './subpage/Graph'
 import axios from 'axios'
 
+
 type Ttotal = {
     total_payment: number,
     total_burial: number
@@ -129,7 +130,7 @@ export default function Dashboard() {
                                             Total Payment
                                         </h2>
                                         <div className='text-2xl flex items-center'>
-                                            {!isLoading?<><TbCurrencyPeso/><span>{totals?.total_payment}</span></>:<p>Loading..</p>}
+                                            {!isLoading?<><TbCurrencyPeso/><span>{totals?.total_payment}</span></>:<p className='text-2xl'>Loading...</p>}
                                             
                                         </div>
                                     </div>
@@ -140,7 +141,7 @@ export default function Dashboard() {
                                             Total Burial
                                         </div>
                                         <div className='text-2xl'>
-                                            {!isLoading?<>{totals?.total_burial}</>:<p>Loading..</p>}
+                                            {!isLoading?<>{totals?.total_burial}</>:<p className='text-2xl'>Loading...</p>}
                                             
                                         </div>
                                     </div>
@@ -153,23 +154,23 @@ export default function Dashboard() {
                                     </div>
                                     <div className='flex flex-col w-3/4'>
                                         <div className="text-2xl font-bold">DateTime</div>
-                                        <div className="font-bold text-lg">{!isLoading?datetime:"Loading..."}</div>
+                                        <div className="font-bold text-lg">{!isLoading?datetime:<p className='text-2xl'>Loading...</p>}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div className='md:w-3/4 w-full grid grid-cols-1 md:grid-cols-2 gap-2'>
                             <div className='rounded-lg shadow-lg flex items-center justify-center'>
-                                {!isLoading?<BarGraph datas={bardata}/>:<p>Loading...</p>}
+                                {!isLoading?<BarGraph datas={bardata}/>:<p className='text-2xl'>Loading...</p>}
                             </div>
                             <div className='rounded-lg shadow-lg flex items-center justify-center'>
-                                {!isLoading?<CircleGraph datas={pieData} />:<p>Loading...</p>}
+                                {!isLoading?<CircleGraph datas={pieData} />:<p className='text-2xl'>Loading...</p>}
                             </div>
                             <div className='rounded-lg shadow-lg flex items-center justify-center'>
-                                {!isLoading?<DoughnutGraph datas={doughnutData}/>:<p>Loading...</p>}
+                                {!isLoading?<DoughnutGraph datas={doughnutData}/>:<p className='text-2xl'>Loading...</p>}
                             </div>
                             <div className='rounded-lg shadow-lg flex items-center justify-center'>
-                                {!isLoading?<LineGraph datas={lineData}/>:<p>Loading...</p>}
+                                {!isLoading?<LineGraph datas={lineData}/>:<p className='text-2xl'>Loading...</p>}
                             </div>
                         </div>
                     </div>

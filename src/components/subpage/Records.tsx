@@ -42,10 +42,12 @@ const Records = () => {
     const [searchDatas, getAllSearchData] = useState<SlotItem[]>([])
 
     //interaction
+    const [isLoadingContent, setIsloadingContent] = useState(false)
     const [search, setSearch] = useState("")
 
 
     const getSlotAll = async ()=>{
+        setIsloadingContent(true)
         try {
 
             const res = await axios.get(`${API_LINK}/getAllSlot`,{
@@ -56,6 +58,7 @@ const Records = () => {
             })
             getAllSearchData(res.data)
             searchContent(res.data)
+            setIsloadingContent(false)    
         } catch (error) {
             console.log(error)
         }
@@ -113,8 +116,14 @@ const Records = () => {
 
     return(
         <> 
+        {isLoadingContent&&
+            <div className="text-2xl">
+                Loading...
+            </div>
+        }
+        
         <div className="animate__animated animate__fadeIn">
-
+        
         
             <div className="bg-white shadow rounded-lg mt-3 sm:w-full md:w-1/2 lg:w-1/4 p-3">
                 <InputTag label="Search" flex="flex-col" type="text" selector={"search"} valueData={search} onChange={e=>getSearch(e.target.value)} />

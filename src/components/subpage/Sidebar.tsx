@@ -10,6 +10,7 @@ export default function Sidebar() {
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
+    const [isloading, setIsloading] = useState(false)
 
     const API_LINK = `${import.meta.env.VITE_APP_API_LNK}/auth`
     const userData = UserData().user
@@ -17,7 +18,7 @@ export default function Sidebar() {
 
     const logout = async (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         event.preventDefault(); 
-
+        setIsloading(true)
         try {
             
             const res = await axios.get(`${API_LINK}/logout/${userData.id}`, {
@@ -29,8 +30,10 @@ export default function Sidebar() {
             if(res.status===200){
                 localStorage.removeItem("user");
                 localStorage.removeItem("token")
+                setIsloading(false)
                 navigate("/login")
             }
+
 
         } catch (error) {
             console.log(error)
@@ -123,10 +126,16 @@ export default function Sidebar() {
                         </li>
                         <li>
                             <NavLink onClick={logout} to="/logout" className="flex items-center p-2 text-white rounded-lg hover:bg-gray-100 group hover:text-gray-900">
-                                <div className='group-hover:text-gray-900'>
-                                    <FaArrowRightFromBracket/>
-                                </div>
-                                <span className="ms-3">Logout</span>
+                                {isloading&&<p>Loading...</p>}
+                                {!isloading&&
+                                    <>
+                                        <div className='group-hover:text-gray-900'>
+                                            <FaArrowRightFromBracket/>
+                                        </div>
+                                        <span className="ms-3">Logout</span>
+                                    </>
+                                        
+                                }
                             </NavLink>
                         </li>
                     </ul>

@@ -20,7 +20,7 @@ const ButtonTag: React.FC<DataContent> = ({type="button", text, icon: Icon, disa
     return (
         <>
             <button disabled={disabled} type={type} className={`group relative w-full flex justify-center items-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${color} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-not-allowed ${cursor}`} onClick={handleClick}>
-                {Icon && <Icon />}
+                {!disabled&&Icon && <Icon />}
                 {disabled&&
                 <>
                     <svg aria-hidden="true" role="status" className="inline w-4 h-4 me-3 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">

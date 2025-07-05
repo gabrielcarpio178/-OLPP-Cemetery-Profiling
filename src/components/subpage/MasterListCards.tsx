@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ButtonTag from '../inputData/ButtonTag'
 import { FaPenToSquare, FaTrash, FaCreditCard } from 'react-icons/fa6'
 import axios from 'axios'
@@ -40,7 +40,7 @@ interface Irecords {
     born: string,
     died: string
     deleteRecord: (data: TdeleteRecords)=>void
-    editRecord: (data: TeditData)=>void
+    editRecord: (data: TeditData)=>void,
 }
 
 const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_name, image_name, middlename, slot_name, slot_id, group_id, suffix, born, died, deleteRecord=()=>{}, editRecord=()=>{}}) => {
@@ -60,6 +60,8 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
     //     return blob
     // }
 
+    const [isLoading, setIsloading] = useState(false)
+
 
     const CLOUD_NAME = import.meta.env.VITE_APP_API_IMAGE
     const CLOUD_VERSION = import.meta.env.VITE_APP_API_CLOUD_VERSION
@@ -74,10 +76,12 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
         return res.data;
     }
     const handleEdit = async () => {
+        setIsloading(true)
         const imageBlob = await convertImg(image_name); 
         editRecord({
             id, firstname, lastname, group_id, image_name: imageBlob, middlename, slot_id, suffix, born, died, group_name, slot_name, file_name: image_name
         });
+        setIsloading(false)
     }
 
     return (
@@ -93,7 +97,7 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
                 </div>
                 <div className="px-6 pb-4 flex flex-row gap-x-2">
                     <ButtonTag icon={FaCreditCard} onClick={()=>navigate(`/payment/records?slotId=${slot_id}&slotName=${slot_name}&groupName=${group_name}`)} />
-                    <ButtonTag icon={FaPenToSquare} onClick={handleEdit} color='bg-blue-500 hover:bg-blue-600'/>
+                    <ButtonTag icon={FaPenToSquare} onClick={handleEdit} color='bg-blue-500 hover:bg-blue-600' disabled={isLoading}/>
                     <ButtonTag icon={FaTrash} onClick={()=>deleteRecord({id, image_name})} color='bg-red-500 hover:bg-red-600'/>
                 </div>
             </div>

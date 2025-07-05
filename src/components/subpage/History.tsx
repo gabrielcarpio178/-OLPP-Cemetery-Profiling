@@ -43,12 +43,13 @@ const History = () => {
 
     //interaction
     const [search, setSearch] = useState<string>("")
+    const [isLoadingContent, setIsloadingContent] = useState(false)
 
     const API_LINK = import.meta.env.VITE_APP_API_LNK+"/auth"
     const token = UserData().token
     
     const getPaymentByGroup = async (): Promise<void> => {
-
+        setIsloadingContent(true)
         try {
             const res = await axios.get(`${API_LINK}/getPaymenByGroup`,{
                 headers: {
@@ -58,6 +59,7 @@ const History = () => {
             })
             setPaymentByGroup(res.data)
             getpaymentHistory()
+            setIsloadingContent(false)
         }catch(error) {
             console.log(error)
         }
@@ -139,7 +141,12 @@ const History = () => {
     }, [])
 
     return (
-        <>
+        <>  
+            {isLoadingContent&&
+                <div className="text-2xl">
+                    Loading...
+                </div>
+            }
             <div className="animate__animated animate__fadeIn">
                 <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] mt-3 w-full gap-4">
                     {paymentByGroup.map((data: TgetPaymentByGroup)=>{

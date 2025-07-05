@@ -104,6 +104,7 @@ export default function MasterList() {
     const [deleteLoading, setDeleteLoading] = useState(false)
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [search, setSearch] = useState("")
+    const [isLoadingContent, setIsloadingContent] = useState(false)
     
     //selected ids
     const [deleteIds, setDeleteIds] = useState<TdeleteIds>({id: 0, image_name: ""})
@@ -157,6 +158,7 @@ export default function MasterList() {
 
     const getRecords = async () =>{
         setSearch("")
+        setIsloadingContent(true)
         try {
             const res = await axios.get(`${API_LINK}/getRecords`,{
                 headers: {
@@ -166,6 +168,7 @@ export default function MasterList() {
             })
             setRecords(res.data)
             setFullRecords(res.data)
+            setIsloadingContent(false)
         } catch (error) {
             console.log(error)
         }
@@ -354,31 +357,38 @@ export default function MasterList() {
                 {isaddOpen&&<MasterListModal onProgressImage={onProgressImage} groups={groups} slots={slots} isOpen={isaddOpen} title='Add Records' closeModal={closeAddModal} sendData={getData}/>}
                 
                 {editModalOpen&&<MasterListModal onProgressImage={onProgressImage} groups={groups} slots={slots} isOpen={editModalOpen} title='Edit Records' closeModal={closeAddModal} sendData={getEdit} editData={editData as TsendData}/>} 
+                {isLoadingContent&&
+                    <div className="pt-28 px-5 sm:mt-0 sm:pt-20 sm:ml-64 capitalize min-h-screen bg-gray-100">
+                        <p className='text-2xl'>Loading</p>
+                    </div>
+                }
+                {!isLoadingContent&&
+                    <div className="pt-28 px-5 sm:mt-0 sm:pt-20 sm:ml-64 capitalize animate__animated animate__fadeIn min-h-screen bg-gray-100">
+                        <h1 className='font-bold text-2xl'>
+                            Master List
+                        </h1>
+                        
+                        <div className="flex flex-row justify-end mb-2">
+                            <div className="w-[10%]">
+                                <ButtonTag text='Add' icon={FaPlus} onClick={openAddModal}/>
+                            </div>
+                        </div>
 
-                <div className="pt-28 px-5 sm:mt-0 sm:pt-20 sm:ml-64 capitalize animate__animated animate__fadeIn min-h-screen bg-gray-100">
-                    <h1 className='font-bold text-2xl'>
-                        Master List
-                    </h1>
-                    
-                    <div className="flex flex-row justify-end mb-2">
-                        <div className="w-[10%]">
-                            <ButtonTag text='Add' icon={FaPlus} onClick={openAddModal}/>
+                        <div className='w-full sm:w-3/4 md:w-1/2 lg:w-1/4 bg-white py-3 px-2 shadow rounded-lg sm:px-5'>
+                            <InputTag label='Search' type='text' flex='flex-col' selector={'search'} valueData={search} onChange={e=>searchData(e.target.value)}/>
+                        </div>
+
+                        <div className='grid mt-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                            {records.map((data: TgetRecords) => {
+                                return(
+                                    <div key={data.id}>
+                                        <MasterListCards born={data.born} died={data.died} id={data.id} deleteRecord={deleteRecord} firstname={data.firstname} lastname={data.lastname} group_name={data.group_name} image_name={data.image_name} middlename={data.middlename} slot_name={data.slot_name} suffix={data.suffix} slot_id={data.slot_id} group_id={data.group_id} editRecord={geteditData}/>
+                                    </div>
+                                )})}
                         </div>
                     </div>
-
-                    <div className='w-full sm:w-3/4 md:w-1/2 lg:w-1/4 bg-white py-3 px-2 shadow rounded-lg sm:px-5'>
-                        <InputTag label='Search' type='text' flex='flex-col' selector={'search'} valueData={search} onChange={e=>searchData(e.target.value)}/>
-                    </div>
-
-                    <div className='grid mt-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                        {records.map((data: TgetRecords) => {
-                            return(
-                                <div key={data.id}>
-                                    <MasterListCards born={data.born} died={data.died} id={data.id} deleteRecord={deleteRecord} firstname={data.firstname} lastname={data.lastname} group_name={data.group_name} image_name={data.image_name} middlename={data.middlename} slot_name={data.slot_name} suffix={data.suffix} slot_id={data.slot_id} group_id={data.group_id} editRecord={geteditData}/>
-                                </div>
-                            )})}
-                    </div>
-                </div>
+                }
+                
             </>
         )
 }

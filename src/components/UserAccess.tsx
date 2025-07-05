@@ -42,6 +42,7 @@ export default function UserAccess() {
     const [editIdData, setEditIdData] = useState(0)
     const [getAllData, setAllData] = useState<UsersData[]>([])
     const [searchText, setSearchText] = useState("")
+    const [isLoadingContent, setIsloadingContent] = useState(false)
     const navigate = useNavigate()
     const isOpenAdd = () => {
         setAddOpen(true);
@@ -66,6 +67,7 @@ export default function UserAccess() {
             password: data.password,
         }
         try {
+           
             await axios.post(`${API_LINK}/addUser`, sendData, {
                 headers:{
                     'Content-type':'application/x-www-form-urlencoded',
@@ -179,6 +181,7 @@ export default function UserAccess() {
     }
 
     const getUsersData = async () => {
+        setIsloadingContent(true)
         try {
             const res = await axios.get(`${API_LINK}/getUserAccess/${user.id}` ,{
                 headers:{
@@ -198,6 +201,7 @@ export default function UserAccess() {
             })
             setAllData(users)
             setUsersData(users)
+            setIsloadingContent(false)
         } catch (error) {
             console.log(error)
         }
@@ -254,26 +258,31 @@ export default function UserAccess() {
                 {editOpen&&
                     <UserAccessModal roleContent="edit" title="Edit User Access" isOpen={editOpen} getDataInput={editUser} onClose={isCloseEdit} editId={editIdData} editData={editData} isLoadingUpdate={updateLoading}/>
                 }
-                <div className="pt-28 px-5 sm:mt-0 sm:pt-20 sm:ml-64 capitalize animate__animated animate__fadeIn min-h-screen bg-gray-100">
-                    <h1 className='font-bold text-2xl'>
-                        user access
-                    </h1>
-                    <div className='mt-8'>
-                        {user.role==="admin"&&
-                            <div className="flex flex-row justify-end">
-                                <div className="w-[10%]">
-                                    <ButtonTag text='Add' icon={FaPlus} onClick={isOpenAdd}/>
+                {isLoadingContent&&
+                    <div className='text-2xl'>Loading...</div>
+                }
+                {!isLoadingContent&&
+                    <div className="pt-28 px-5 sm:mt-0 sm:pt-20 sm:ml-64 capitalize animate__animated animate__fadeIn min-h-screen bg-gray-100">
+                        <h1 className='font-bold text-2xl'>
+                            user access
+                        </h1>
+                        <div className='mt-8'>
+                            {user.role==="admin"&&
+                                <div className="flex flex-row justify-end">
+                                    <div className="w-[10%]">
+                                        <ButtonTag text='Add' icon={FaPlus} onClick={isOpenAdd}/>
+                                    </div>
                                 </div>
+                            }
+                            <div className='mt-6 bg-white w-full'>
+                                <div className='w-[40%] ml-5'>
+                                    <InputTag selector='search' label='Search' type='text' flex='flex-row items-center gap-x-2' valueData={searchText} onChange={e=>searchData(e.target.value)} />
+                                </div>
+                                <DataTable columns={columns} data={usersData} pagination paginationPerPage={7} responsive paginationRowsPerPageOptions={[1,2,3,4,5,6,7]}></DataTable>
                             </div>
-                        }
-                        <div className='mt-6 bg-white w-full'>
-                            <div className='w-[40%] ml-5'>
-                                <InputTag selector='search' label='Search' type='text' flex='flex-row items-center gap-x-2' valueData={searchText} onChange={e=>searchData(e.target.value)} />
-                            </div>
-                            <DataTable columns={columns} data={usersData} pagination paginationPerPage={7} responsive paginationRowsPerPageOptions={[1,2,3,4,5,6,7]}></DataTable>
                         </div>
                     </div>
-                </div>
+                }
             </>
         )
 }
