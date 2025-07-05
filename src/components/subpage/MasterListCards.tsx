@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { version } from 'react'
 import ButtonTag from '../inputData/ButtonTag'
 import { FaPenToSquare, FaTrash, FaCreditCard } from 'react-icons/fa6'
 import axios from 'axios'
@@ -45,21 +45,34 @@ interface Irecords {
 
 const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_name, image_name, middlename, slot_name, slot_id, group_id, suffix, born, died, deleteRecord=()=>{}, editRecord=()=>{}}) => {
     const API_LINK = import.meta.env.VITE_APP_API_LNK
-    const token = UserData().token
+    // const token = UserData().token
     const navigate = useNavigate();
     
-    async function convertImg(image: string): Promise<Blob>{
-        const res = await axios.get(`${API_LINK}/auth/uploads/${image}`, {
-            headers: { 
-                'Content-Type': 'application/json',
-                "authorization" : `bearer ${token}`
-            },
+    // async function convertImg(image: string): Promise<Blob>{
+    //     const res = await axios.get(`${API_LINK}/auth/uploads/${image}`, {
+    //         headers: { 
+    //             'Content-Type': 'application/json',
+    //             "authorization" : `bearer ${token}`
+    //         },
+    //         responseType: 'blob',
+    //     });
+    //     const blob = res.data;
+    //     return blob
+    // }
+
+
+    const CLOUD_NAME = import.meta.env.VITE_APP_API_IMAGE
+    const CLOUD_VERSION = import.meta.env.VITE_APP_API_CLOUD_VERSION
+
+    async function convertImg(image: string): Promise<Blob> {
+        const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${CLOUD_VERSION}/uploads/${image}`;
+
+        const res = await axios.get(url, {
             responseType: 'blob',
         });
-        const blob = res.data;
-        return blob
-    }
 
+        return res.data;
+    }
     const handleEdit = async () => {
         const imageBlob = await convertImg(image_name); 
         editRecord({
@@ -70,7 +83,7 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
     return (
         <>
             <div className="max-w-full rounded overflow-hidden shadow-lg">
-                <img className="w-full" src={`${API_LINK}/uploads/${image_name}`} alt={`${firstname} ${middlename}. ${lastname} ${suffix!=="N/A"?`${suffix}.`:""}`} />
+                <img className="w-full" src={`https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${CLOUD_VERSION}/uploads/${image_name}`} alt={`${firstname} ${middlename}. ${lastname} ${suffix!=="N/A"?`${suffix}.`:""}`} />
                 <div className="px-6 py-4">
                     <div className="font-bold text-xl mb-2">{firstname} {middlename}. {lastname} <span className='capitalize'>{suffix!=="N/A"?`${suffix}.`:""}</span></div>
                     <div className="text-gray-700 text-base flex flex-col gap-y-1">
