@@ -7,12 +7,71 @@ import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { IconContext } from 'react-icons/lib'
 import { FaClock } from 'react-icons/fa6'
-import {BarGraph, CircleGraph, LineGraph} from './subpage/Graph'
+import {BarGraph, CircleGraph, DoughnutGraph, LineGraph} from './subpage/Graph'
+import axios from 'axios'
+
+type Ttotal = {
+    total_payment: number,
+    total_burial: number
+}
+
+type TPieGraph ={
+    group_name: string
+    record_count: number
+}
+
+type TBarGraph = {
+    month: string,
+    total_amount: number
+}
+
+type TLineGraph = {
+    death_count: number,
+    death_year: number
+}
+
+type TDoughnutGraph = {
+    group_name: string,
+    total_amount: number
+}
 
 export default function Dashboard() {
     const userAccount = UserData().user
-    
+    const token = UserData().token
+    const API_LINK = import.meta.env.VITE_APP_API_LNK+"/auth"
+    //interaction
     const [datetime, setDatetime] = useState("Loading...")
+    const [isLoading, setIsLoading] = useState(false)
+
+    //datas
+    const [totals, setTotals] = useState<Ttotal|null>(null)
+    const [bardata, setBarData] = useState<TBarGraph[]>([])
+    const [pieData, setPieData] = useState<TPieGraph[]>([])
+    const [lineData, setLineData] = useState<TLineGraph[]>([])
+    const [doughnutData, setDoughnutData]  = useState<TDoughnutGraph[]>([])
+
+    const getDatas = async ()=>{
+        setIsLoading(true)
+        try {
+            const res = await axios.get(`${API_LINK}/getDashboard`, {
+                headers: {
+                    'Content-type':'application/x-www-form-urlencoded',
+                    "authorization" : `bearer ${token}`,
+                }
+            })
+            
+            setTotals(res.data.totals)
+            setBarData(res.data.barGraph)
+            setPieData(res.data.pieGraph)
+            setLineData(res.data.lineGraph)
+            setDoughnutData(res.data.doughnutGraph)
+            setIsLoading(false)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
     const getCurrentDatetime = () =>{
         const now = moment();
         const formattedDateTime = now.format('MMMM DD, YYYY h:mm:ss a');
@@ -25,6 +84,10 @@ export default function Dashboard() {
         }, 1000);
     },[])
 
+    useEffect(()=>{
+        getDatas()
+    },[])
+
 
     return (
         <>
@@ -33,7 +96,6 @@ export default function Dashboard() {
                 <h1 className='font-bold text-2xl'>
                     Dashboard
                 </h1>
-                <p className='text-sm'>Under development</p>
                 <div className='mt-6'>
                     <div className='flex flex-col md:flex-row gap-2'>
                         <div className='grid md:grid-rows-2 gap-3 md:w-1/3 w-full grid-rows-1'>
@@ -67,7 +129,8 @@ export default function Dashboard() {
                                             Total Payment
                                         </h2>
                                         <div className='text-2xl flex items-center'>
-                                            <TbCurrencyPeso/><span>2000</span>
+                                            {!isLoading?<><TbCurrencyPeso/><span>{totals?.total_payment}</span></>:<p>Loading..</p>}
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -77,7 +140,8 @@ export default function Dashboard() {
                                             Total Burial
                                         </div>
                                         <div className='text-2xl'>
-                                            2000
+                                            {!isLoading?<>{totals?.total_burial}</>:<p>Loading..</p>}
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -96,16 +160,16 @@ export default function Dashboard() {
                         </div>
                         <div className='md:w-3/4 w-full grid grid-cols-1 md:grid-cols-2 gap-2'>
                             <div className='rounded-lg shadow-lg flex items-center justify-center'>
-                                <BarGraph/>
+                                {!isLoading?<BarGraph datas={bardata}/>:<p>Loading...</p>}
                             </div>
                             <div className='rounded-lg shadow-lg flex items-center justify-center'>
-                                <CircleGraph/>
+                                {!isLoading?<CircleGraph datas={pieData} />:<p>Loading...</p>}
                             </div>
                             <div className='rounded-lg shadow-lg flex items-center justify-center'>
-                                <LineGraph/>
+                                {!isLoading?<DoughnutGraph datas={doughnutData}/>:<p>Loading...</p>}
                             </div>
                             <div className='rounded-lg shadow-lg flex items-center justify-center'>
-                                
+                                {!isLoading?<LineGraph datas={lineData}/>:<p>Loading...</p>}
                             </div>
                         </div>
                     </div>
