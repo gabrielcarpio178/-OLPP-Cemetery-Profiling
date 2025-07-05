@@ -1,8 +1,8 @@
-import React, { version } from 'react'
+import React from 'react'
 import ButtonTag from '../inputData/ButtonTag'
 import { FaPenToSquare, FaTrash, FaCreditCard } from 'react-icons/fa6'
 import axios from 'axios'
-import UserData from '../../UserData'
+// import UserData from '../../UserData'
 import { useNavigate } from 'react-router'
 
 type TdeleteRecords = {
