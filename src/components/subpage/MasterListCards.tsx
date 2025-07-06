@@ -4,6 +4,8 @@ import { FaPenToSquare, FaTrash, FaCreditCard } from 'react-icons/fa6'
 import axios from 'axios'
 // import UserData from '../../UserData'
 import { useNavigate } from 'react-router'
+import moment from 'moment'
+
 
 type TdeleteRecords = {
     id: number,
@@ -66,6 +68,7 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
     const CLOUD_NAME = import.meta.env.VITE_APP_API_IMAGE
     const CLOUD_VERSION = import.meta.env.VITE_APP_API_CLOUD_VERSION
 
+
     async function convertImg(image: string): Promise<Blob> {
         const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${CLOUD_VERSION}/uploads/${image}`;
 
@@ -83,6 +86,7 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
         });
         setIsloading(false)
     }
+    
 
     return (
         <>
@@ -90,10 +94,17 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
                 <img className="w-full" src={`https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${CLOUD_VERSION}/uploads/${image_name}`} alt={`${firstname} ${middlename}. ${lastname} ${suffix!=="N/A"?`${suffix}.`:""}`} />
                 <div className="px-6 py-4">
                     <div className="font-bold text-xl mb-2">{firstname} {middlename}. {lastname} <span className='capitalize'>{suffix!=="N/A"?`${suffix}.`:""}</span></div>
-                    <div className="text-gray-700 text-base flex flex-col gap-y-1">
-                        <div className='capitalize'>group name: {group_name}</div>
-                        <div className='capitalize'>slot name: {slot_name}</div>
+                    <div className='flex flex-row'>
+                        <div className="text-gray-700 text-base flex flex-col gap-y-1 w-1/2">
+                            <div className='capitalize'>Born: {moment(born).format('MMM. DD, YYYY')}</div>
+                            <div className='capitalize'>Died: {moment(died).format('MMM. DD, YYYY')}</div>
+                        </div>
+                        <div className="text-gray-700 text-base flex flex-col gap-y-1 w-1/2">
+                            <div className='capitalize'>group name: {group_name}</div>
+                            <div className='capitalize'>slot name: {slot_name}</div>
+                        </div>
                     </div>
+                
                 </div>
                 <div className="px-6 pb-4 flex flex-row gap-x-2">
                     <ButtonTag icon={FaCreditCard} onClick={()=>navigate(`/payment/records?slotId=${slot_id}&slotName=${slot_name}&groupName=${group_name}`)} />
