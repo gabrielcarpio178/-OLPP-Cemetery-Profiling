@@ -30,7 +30,6 @@ export default function Sidebar() {
             if(res.status===200){
                 localStorage.removeItem("user");
                 localStorage.removeItem("token")
-                setIsloading(false)
                 navigate("/login")
             }
 

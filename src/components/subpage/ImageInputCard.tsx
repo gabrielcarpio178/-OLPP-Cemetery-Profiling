@@ -9,8 +9,11 @@ interface ImgFIle {
     isEdit: boolean
 }
 const ImageInputCard: React.FC<ImgFIle> = ({imgFile, onRemove=()=>{}, onProgressImage, hasError, isEdit}) => {
-    const API_LINK = import.meta.env.VITE_APP_API_LNK
-    const image = isEdit?imgFile:`${API_LINK}/uploads/${imgFile}`
+    // const API_LINK = import.meta.env.VITE_APP_API_LNK
+    const CLOUD_NAME = import.meta.env.VITE_APP_API_IMAGE
+    const CLOUD_VERSION = import.meta.env.VITE_APP_API_CLOUD_VERSION
+    const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${CLOUD_VERSION}/uploads/${imgFile}`
+    const image = isEdit?imgFile:url
     return (
         <div className="flex flex-col items-center justify-center w-full py-[23.2%] bg-gray-50 rounded-2xl border border-gray-300 border-dashed bg-center bg-cover relative" style={{ backgroundImage: `url(${image})`}}>
             {!hasError&&
