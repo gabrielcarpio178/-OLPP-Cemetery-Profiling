@@ -236,6 +236,7 @@ export default function MasterList() {
                 },
                 data: deleteIds
             })
+            console.log(res)
             if(res.status===200){
                 setDeleteDialog(false)
                 setIsOpenAlert(true)
