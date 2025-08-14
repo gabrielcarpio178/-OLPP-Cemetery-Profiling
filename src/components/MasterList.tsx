@@ -17,10 +17,17 @@ type Tgroup = {
     group_name: string
 }
 
+
 type Tslot = {
     slot_name: string,
     id: number,
     group_id: number
+}
+
+type Tspace = {
+    space_name: string,
+    space_id : number;
+    slot_id: number
 }
 
 type TgetData = {
@@ -30,6 +37,7 @@ type TgetData = {
     firstname: string|null,
     lastname: string|null,
     slot_id: number|null,
+    space_id: number|null,
     group_id: number|null,
     born: string|null,
     died: string|null,
@@ -45,6 +53,7 @@ type TsendData = {
     lastname: string,
     slot_id: number,
     group_id: number,
+    space_id: number,
     born: string,
     died: string,
     suffix: string,
@@ -62,6 +71,8 @@ type TgetRecords = {
     image_name: string,
     middlename: string,
     slot_name: string,
+    space_id: number,
+    space_name: string,
     suffix: string,
     born: string,
     died: string
@@ -77,6 +88,7 @@ type TeditData = {
     lastname: string,
     slot_id: number,
     group_id: number,
+    space_id: number,
     born: string,
     died: string,
     suffix: string,
@@ -112,6 +124,7 @@ export default function MasterList() {
     //get group and slot hook
     const [groups, setGroups] = useState<Tgroup[]>([])
     const [slots, setSlots] = useState<Tslot[]>([])
+    const [spaces, setSpaces] = useState<Tspace[]>([])
     const [records, setRecords] = useState<TgetRecords[]>([])
     const [fullrecords, setFullRecords] = useState<TgetRecords[]>([])
     const [editData, seteditData] = useState<TeditData>()
@@ -151,6 +164,21 @@ export default function MasterList() {
                 }
             })
             setSlots(res.data)
+            getSpace();
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const getSpace = async () =>{
+        try {
+            const res = await axios.get(`${API_LINK}/getSpace`, {
+                headers: {
+                    'Content-type':'application/x-www-form-urlencoded',
+                    "authorization" : `bearer ${token}`
+                }
+            })
+            setSpaces(res.data)
         } catch (error) {
             console.log(error)
         }
@@ -180,6 +208,7 @@ export default function MasterList() {
             image: data.image,
             slot_id: data.slot_id,
             group_id: data.group_id,
+            space_id: data.space_id,
             firstname: data.firstname,
             lastname: data.lastname,
             suffix: data.suffix,
@@ -265,6 +294,7 @@ export default function MasterList() {
             lastname: data.lastname,
             slot_id: data.slot_id,
             group_id: data.group_id,
+            space_id: data.space_id,
             born: data.born,
             died: data.died,
             suffix: data.suffix,
@@ -285,6 +315,7 @@ export default function MasterList() {
             firstname: data.firstname,
             lastname: data.lastname,
             suffix: data.suffix,
+            space_id: data.space_id,
             middlename: data.middlename,
             born: data.born,
             died: data.died,
@@ -347,6 +378,7 @@ export default function MasterList() {
     useEffect(()=>{
         getRecords()
         getGroupData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 
     return (
@@ -355,9 +387,9 @@ export default function MasterList() {
                 {isOpenAlert&&<AlertSuccess isOpen={isOpenAlert} message="Successfully"/>}
                 {deleteDialog&&<Dialog id={deleteIds?.id} isOPen={deleteDialog} setAction={deleteGetAction} title={'Are you sure you want to delete this record?'} isLoading={deleteLoading} />}
                 
-                {isaddOpen&&<MasterListModal onProgressImage={onProgressImage} groups={groups} slots={slots} isOpen={isaddOpen} title='Add Records' closeModal={closeAddModal} sendData={getData}/>}
+                {isaddOpen&&<MasterListModal spaces={spaces} onProgressImage={onProgressImage} groups={groups} slots={slots} isOpen={isaddOpen} title='Add Records' closeModal={closeAddModal} sendData={getData}/>}
                 
-                {editModalOpen&&<MasterListModal onProgressImage={onProgressImage} groups={groups} slots={slots} isOpen={editModalOpen} title='Edit Records' closeModal={closeAddModal} sendData={getEdit} editData={editData as TsendData}/>} 
+                {editModalOpen&&<MasterListModal spaces={spaces} onProgressImage={onProgressImage} groups={groups} slots={slots} isOpen={editModalOpen} title='Edit Records' closeModal={closeAddModal} sendData={getEdit} editData={editData as TsendData}/>} 
                 {isLoadingContent&&
                     <div className="pt-28 px-5 sm:mt-0 sm:pt-20 sm:ml-64 capitalize min-h-screen bg-gray-100">
                         <p className='text-2xl'>Loading</p>
@@ -383,7 +415,7 @@ export default function MasterList() {
                             {records.map((data: TgetRecords) => {
                                 return(
                                     <div key={data.id}>
-                                        <MasterListCards born={data.born} died={data.died} id={data.id} deleteRecord={deleteRecord} firstname={data.firstname} lastname={data.lastname} group_name={data.group_name} image_name={data.image_name} middlename={data.middlename} slot_name={data.slot_name} suffix={data.suffix} slot_id={data.slot_id} group_id={data.group_id} editRecord={geteditData}/>
+                                        <MasterListCards born={data.born} died={data.died} id={data.id} deleteRecord={deleteRecord} firstname={data.firstname} lastname={data.lastname} group_name={data.group_name} image_name={data.image_name} middlename={data.middlename} slot_name={data.slot_name} suffix={data.suffix} slot_id={data.slot_id} group_id={data.group_id} space_name={data.space_name} space_id={data.space_id} editRecord={geteditData}/>
                                     </div>
                                 )})}
                         </div>
