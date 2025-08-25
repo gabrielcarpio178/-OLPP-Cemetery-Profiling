@@ -30,20 +30,26 @@ type Tspace = {
     slot_id: number
 }
 
+type PersonForm = {
+    id: number;
+    firstName?: string;
+    lastName?: string;
+    suffix?: string,
+    middleName?:string
+    died?: string,
+    born?: string
+};
+
+
 type TgetData = {
     id: number,
     notImage: boolean,
     image: File|null,
-    firstname: string|null,
-    lastname: string|null,
     slot_id: number|null,
     space_id: number|null,
     group_id: number|null,
-    born: string|null,
-    died: string|null,
-    suffix: string|null,
-    middlename: string|null,
     file_name: string|null
+    personForms: PersonForm[]
 }
 
 type TsendData = {
@@ -203,46 +209,47 @@ export default function MasterList() {
     }
 
     const getData = async (data: TgetData) =>{
-        setOnProgress(0)
-        const sendData = {
-            image: data.image,
-            slot_id: data.slot_id,
-            group_id: data.group_id,
-            space_id: data.space_id,
-            firstname: data.firstname,
-            lastname: data.lastname,
-            suffix: data.suffix,
-            middlename: data.middlename,
-            born: data.born,
-            died: data.died
-        }
-        if(!data.notImage){
-            try {
-                const res = await axios.post(`${API_LINK}/addRecords`, sendData, {
-                    headers: {
-                        'Content-type':'multipart/form-data',
-                        "authorization" : `bearer ${token}`
-                    },
-                    onUploadProgress: (progressEvent) => {
-                        const { loaded, total } = progressEvent;
-                        if (total !== undefined) {
-                            const percentCompleted = Math.round((loaded * 100) / total);
-                            setOnProgress(percentCompleted)
-                        }
-                    }
-                })
-                if(res.status===200){
-                    setAddOpen(false)
-                    setIsOpenAlert(true)
-                    setTimeout(() => {
-                        navigate("/master_list");
-                    }, 2000);
-                }
-            } catch (error) {
-                return error
-            }
-            getRecords()
-        }
+        console.log(data)
+        // setOnProgress(0)
+        // const sendData = {
+        //     image: data.image,
+        //     slot_id: data.slot_id,
+        //     group_id: data.group_id,
+        //     space_id: data.space_id,
+        //     firstname: data.firstname,
+        //     lastname: data.lastname,
+        //     suffix: data.suffix,
+        //     middlename: data.middlename,
+        //     born: data.born,
+        //     died: data.died
+        // }
+        // if(!data.notImage){
+        //     try {
+        //         const res = await axios.post(`${API_LINK}/addRecords`, sendData, {
+        //             headers: {
+        //                 'Content-type':'multipart/form-data',
+        //                 "authorization" : `bearer ${token}`
+        //             },
+        //             onUploadProgress: (progressEvent) => {
+        //                 const { loaded, total } = progressEvent;
+        //                 if (total !== undefined) {
+        //                     const percentCompleted = Math.round((loaded * 100) / total);
+        //                     setOnProgress(percentCompleted)
+        //                 }
+        //             }
+        //         })
+        //         if(res.status===200){
+        //             setAddOpen(false)
+        //             setIsOpenAlert(true)
+        //             setTimeout(() => {
+        //                 navigate("/master_list");
+        //             }, 2000);
+        //         }
+        //     } catch (error) {
+        //         return error
+        //     }
+        //     getRecords()
+        // }
     }
 
     const deleteRecord = (data: TdeleteIds) =>{
@@ -312,13 +319,7 @@ export default function MasterList() {
             image: data.image,
             slot_id: data.slot_id,
             group_id: data.group_id,
-            firstname: data.firstname,
-            lastname: data.lastname,
-            suffix: data.suffix,
             space_id: data.space_id,
-            middlename: data.middlename,
-            born: data.born,
-            died: data.died,
             file_name: data.file_name
         }
         if(!data.notImage){

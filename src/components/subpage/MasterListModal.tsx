@@ -31,20 +31,26 @@ type TselectTag = {
     text: string
 }
 
+type PersonForm = {
+    id: number;
+    firstName?: string;
+    lastName?: string;
+    suffix?: string,
+    middleName?:string
+    died?: string,
+    born?: string
+};
+
+
 type TsendData = {
     notImage: boolean,
     id: number
     image: File|null,
     file_name: string
-    firstname: string|null,
-    lastname: string|null,
     slot_id: number|null,
     group_id: number|null,
     space_id: number|null
-    born: string|null,
-    died: string|null,
-    suffix: string|null,
-    middlename: string|null,
+    personForms: PersonForm[]
 }
 
 type TeditData = {
@@ -65,6 +71,8 @@ type TeditData = {
 }
 
 
+
+
 interface ContentTyps {
     isOpen: boolean;
     title: string;
@@ -72,7 +80,7 @@ interface ContentTyps {
     slots: Tslot[],
     groups: Tgroups[],
     spaces: Tspace[];
-    sendData: (data: TsendData) => void;
+    sendData: (data: TsendData) => Promise<void>;
     onProgressImage: number;
     editData?: TeditData
 }
@@ -89,7 +97,17 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
     const [slot_id, setSlot_id] = useState<number>(editData?.slot_id ?? 0);
     const [space_id, setSpace_id] = useState<number>(editData?.space_id ?? 0);
     const [isEditSpace, setIsEditSpace] = useState<boolean>(editData===undefined)
-    const [personNum, setPersonNum] = useState<number>(1);
+
+
+    const [personForms, setPersonForms] = useState<PersonForm[]>([ {
+            id: Date.now(),
+            firstName: '',
+            lastName: '',
+            suffix: '',
+            middleName: '',
+            born: '',
+            died: ''
+        }]);
     
     
     //interaction
@@ -163,81 +181,80 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
         setSlots_id(displaySlot)
     }
 
+    const handlePersonFormChange = (index: number, field: string, value: string) => {
+        const updatedForms = personForms.map((form, idx) => 
+        idx === index ? { ...form, [field]: value } : form
+        );
+        setPersonForms(updatedForms);
+    };
+
     const submitData = async (e: React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault()
-        setButtonLoading(true)
+        // setButtonLoading(true)
         setHasError(false)
+
         const formData = new FormData(e.currentTarget)
-        const firstname = formData.get("firstname");
-        const lastname = formData.get("lastname");
         const group = formData.get("group_id");
         const slot = formData.get("slot_id");
         const space = formData.get("space_id");
-        const born = formData.get("born");
-        const died = formData.get("died");
-        const suffix = formData.get("suffix")
-        const middlename = formData.get("middlename")
 
         const data: TsendData = {
             notImage: notImage,
             id: editData===undefined?0:editData.id,
             image: files,
             file_name: editData===undefined?"":editData?.file_name,
-            firstname: typeof firstname === "string" ? firstname : null,
-            lastname: typeof lastname === "string" ? lastname : null,
             group_id: typeof group === "string" ? parseInt(group) : null,
             slot_id: typeof slot === "string" ? parseInt(slot) : null,
             space_id: typeof space === "string" ? parseInt(space) : null,
-            born: typeof born === "string" ? born : null,
-            died: typeof died === "string" ? died : null,
-            suffix: typeof suffix === "string" ? suffix : null,
-            middlename: typeof middlename === "string" ? middlename : null,
+            personForms: personForms,
         };
 
-        const fields = { firstname, lastname, group, slot, born, died, suffix, middlename };
-        for (const [key, value] of Object.entries(fields)) {
-            if (!value) {
-                setHasError(true)
-                setButtonLoading(false)
-                setErrorMessage(`"${key}" is not allowed to be empty`);
-                setErrors({slot_idError: "slot"===key, group_idError:  "group"===key, firstname: "firstname"===key, lastname: "lastname"===key, suffix: "suffix"===key, born: "born"===key, died: "died"===key, image: false, middlename: "middlename"===key})
-                return;
-            }
-        }
+        await sendData(data)
 
-        const familyRoleSuffixes:[string|null, string|null, string|null, string|null, string|null, string|null, string|null] = ["JR", "SR", "II", "III", "IV","V", "N/A"];
-        const upperCaseSuffix = (data.suffix===null?"":data.suffix).toLocaleUpperCase()
-        if(!familyRoleSuffixes.includes(upperCaseSuffix)){
-            setHasError(true)
-            setButtonLoading(false)
-            setErrorMessage('"suffix" is not available');
-            setErrors({slot_idError: false, group_idError: false, firstname: false, lastname: false, suffix: true, born: false, died: false, image: false, middlename: false})
-            return;
-        }
+        // const fields = { firstname, lastname, group, slot, born, died, suffix, middlename };
+        // for (const [key, value] of Object.entries(fields)) {
+        //     if (!value) {
+        //         setHasError(true)
+        //         setButtonLoading(false)
+        //         setErrorMessage(`"${key}" is not allowed to be empty`);
+        //         setErrors({slot_idError: "slot"===key, group_idError:  "group"===key, firstname: "firstname"===key, lastname: "lastname"===key, suffix: "suffix"===key, born: "born"===key, died: "died"===key, image: false, middlename: "middlename"===key})
+        //         return;
+        //     }
+        // }
 
-        const res = await sendData(data);
-        setButtonLoading(false)
+        // const familyRoleSuffixes:[string|null, string|null, string|null, string|null, string|null, string|null, string|null] = ["JR", "SR", "II", "III", "IV","V", "N/A"];
+        // const upperCaseSuffix = (data.suffix===null?"":data.suffix).toLocaleUpperCase()
+        // if(!familyRoleSuffixes.includes(upperCaseSuffix)){
+        //     setHasError(true)
+        //     setButtonLoading(false)
+        //     setErrorMessage('"suffix" is not available');
+        //     setErrors({slot_idError: false, group_idError: false, firstname: false, lastname: false, suffix: true, born: false, died: false, image: false, middlename: false})
+        //     return;
+        // }
+
+        // const res = await sendData(data);
+        // setButtonLoading(false)
         
-        if (axios.isAxiosError(res)){
-            if(res.status===400){
-                setHasError(true)
-                const serverErrors = res.response?.data.details[0];
-                setErrorMessage(serverErrors.message);
-                setErrors({
-                    slot_idError: serverErrors.path[0] === "slot_id",
-                    group_idError: serverErrors.path[0] === "group_id",
-                    firstname: serverErrors.path[0] === "firstname",
-                    lastname: serverErrors.path[0] === "lastname",
-                    suffix: serverErrors.path[0] === "suffix",
-                    born: serverErrors.path[0] === "born",
-                    died: serverErrors.path[0] === "died",
-                    image: serverErrors.path[0] === "image",
-                    middlename: serverErrors.path[0] === "middlename"
-                })
-            }else if(res.status==500){
-                setHasError(true)
-            }
-        }
+        // if (axios.isAxiosError(res)){
+        //     if(res.status===400){
+        //         setHasError(true)
+        //         const serverErrors = res.response?.data.details[0];
+        //         setErrorMessage(serverErrors.message);
+        //         setErrors({
+        //             slot_idError: serverErrors.path[0] === "slot_id",
+        //             group_idError: serverErrors.path[0] === "group_id",
+        //             firstname: serverErrors.path[0] === "firstname",
+        //             lastname: serverErrors.path[0] === "lastname",
+        //             suffix: serverErrors.path[0] === "suffix",
+        //             born: serverErrors.path[0] === "born",
+        //             died: serverErrors.path[0] === "died",
+        //             image: serverErrors.path[0] === "image",
+        //             middlename: serverErrors.path[0] === "middlename"
+        //         })
+        //     }else if(res.status==500){
+        //         setHasError(true)
+        //     }
+        // }
         
     }
 
@@ -247,8 +264,25 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
     }
 
     const addForm = () => {
-        setPersonNum(prevNum => prevNum + 1);
+        setPersonForms(prevForms => [
+        ...prevForms,
+        {
+            id: Date.now(), // or generate a UUID or index
+            firstName: '',
+            lastName: '',
+            suffix: '',
+            middleName: '',
+            born: '',
+            died: ''
+        }
+    ]);
     };
+
+    const removeInput = ()=>{
+        if(personForms.length!=1){
+            setPersonForms(prevForms => prevForms.slice(0, -1));
+        }
+    }
 
     useEffect(()=>{
         getGroupData()
@@ -288,8 +322,8 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
                                     {spaceIds.length!==0&&<SelectTag flex={'flex-col w-[33.33%]'} selector={'space_id'} label={'Space'} datas={spaceIds} valueData={space_id?.toString()} onChange={e=>setSpace_id(parseInt(e.target.value))} />}
 
                                 </div>
-                                {Array.from({ length: personNum }).map((_, index) => (
-                                    <AddDiePersonForm key={index} />
+                                {personForms.map((_, index) => (
+                                    <AddDiePersonForm key={index}  index={index} personForm={personForms[index]} onFieldChange={(index, field, value) => handlePersonFormChange(index, field, value)} removeInput={()=>removeInput()} />
                                 ))}
                                 <ButtonTag type='button' color='bg-blue-500 hover:bg-blue-600' text='Add' onClick={addForm}/>
                                 <ButtonTag type='submit' text='Submit' disabled={buttonLoading}/>
