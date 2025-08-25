@@ -19,6 +19,7 @@ type TeditData = {
     lastname: string,
     slot_id: number,
     group_id: number,
+    space_id: number,
     born: string,
     died: string,
     suffix: string,
@@ -36,7 +37,9 @@ interface Irecords {
     image_name: string,
     middlename: string,
     slot_name: string,
+    space_name: string,
     suffix: string,
+    space_id: number
     slot_id: number,
     group_id: number
     born: string,
@@ -45,7 +48,7 @@ interface Irecords {
     editRecord: (data: TeditData)=>void,
 }
 
-const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_name, image_name, middlename, slot_name, slot_id, group_id, suffix, born, died, deleteRecord=()=>{}, editRecord=()=>{}}) => {
+const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_name, image_name, space_name, space_id, middlename, slot_name, slot_id, group_id, suffix, born, died, deleteRecord=()=>{}, editRecord=()=>{}}) => {
     // const API_LINK = import.meta.env.VITE_APP_API_LNK
     // const token = UserData().token
     const navigate = useNavigate();
@@ -82,7 +85,7 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
         setIsloading(true)
         const imageBlob = await convertImg(image_name); 
         editRecord({
-            id, firstname, lastname, group_id, image_name: imageBlob, middlename, slot_id, suffix, born, died, group_name, slot_name, file_name: image_name
+            id, firstname, lastname, group_id, space_id, image_name: imageBlob, middlename, slot_id, suffix, born, died, group_name, slot_name, file_name: image_name
         });
         setIsloading(false)
     }
@@ -92,16 +95,18 @@ const MasterListCards: React.FC<Irecords> = ({id, firstname, lastname, group_nam
         <>
             <div className="max-w-full rounded overflow-hidden shadow-lg">
                 <img className="w-full" src={`https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${CLOUD_VERSION}/uploads/${image_name}`} alt={`${firstname} ${middlename}. ${lastname} ${suffix!=="N/A"?`${suffix}.`:""}`} />
-                <div className="px-6 py-4">
+                <div className="p-4">
                     <div className="font-bold text-xl mb-2">{firstname} {middlename}. {lastname} <span className='capitalize'>{suffix!=="N/A"?`${suffix}.`:""}</span></div>
-                    <div className='flex flex-row'>
-                        <div className="text-gray-700 text-base flex flex-col gap-y-1 w-1/2">
+                    <div className='flex flex-col w-full gap-3'>
+                        <div className="text-gray-700 text-base flex flex-row gap-3 bg-white p-2 shadow rounded-lg">
                             <div className='capitalize'>Born: {moment(born).format('MMM. DD, YYYY')}</div>
                             <div className='capitalize'>Died: {moment(died).format('MMM. DD, YYYY')}</div>
                         </div>
-                        <div className="text-gray-700 text-base flex flex-col gap-y-1 w-1/2">
-                            <div className='capitalize'>group name: {group_name}</div>
-                            <div className='capitalize'>slot name: {slot_name}</div>
+                        <div className="text-gray-700 text-base flex flex-row gap-3 bg-white p-2 shadow rounded-lg">
+                            <div className='capitalize'>group: {group_name}</div>
+                            <div className='capitalize'>slot: {slot_name}</div>
+                            <div className='capitalize'>space: {space_name}</div>
+                            
                         </div>
                     </div>
                 

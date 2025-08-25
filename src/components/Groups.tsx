@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router'
 import Dialog from './subpage/Dialog'
 import SlotDeteils from './subpage/SlotDeteils'
 import SlotFormModal from './subpage/SlotFormModal'
+import AddSpaceModalForm from './subpage/AddSpaceModalForm'
 
 
 
@@ -23,14 +24,19 @@ type Grouptype = {
 }
 
 type TSlotData = {
-    id: number;
+    id: number
     slot_name: string;
-    record_count: number,
+    spaces: {space: string|null, space_id: number| null}[];
 }
 
 type TeditData = {
     id: number,
     slot_name: string
+}
+
+type TspaceEditData = {
+    spaceId: number
+    spaceName: string
 }
 
 export default function Groups() {
@@ -53,7 +59,10 @@ export default function Groups() {
     const [isDialogOpen, setDialogOpen] = useState(false)
     const [isOpenSlotModalFormEdit, setOpenSlotModalFormEdit] = useState(false)
     const [isLoadingContent, setIsloadingContent] = useState(true)
-
+    const [isOpenSpaceForm, setOpenSpaceForm] = useState(false);
+    const [isShowEditSpace, setIsShowEditSpace] = useState(false)
+    const [isShowDeleteSpaceDialog, setisShowDeleteSpaceDialog] = useState(false)
+    
     const [slotData, setSlotData] = useState<TSlotData[]>([])
     const [groudsData, setGroupData] = useState<Grouptype[]>([])
     const [getAllData, setAllData] = useState<Grouptype[]>([])
@@ -61,8 +70,12 @@ export default function Groups() {
     const [getEditSlot, setEditSlot] = useState<TeditData>()
     const [group_id, setGroup_id] = useState(0)
     const [deleteSlot_id, setDeleteSlot_id] = useState(0)
+    const [slotId, setSlotId] = useState<number>(0);
+    const [spaceEditData, setSpaceEditData] = useState<TspaceEditData>()
+    const [spaceDeleteId, setSpaceDeleteId] =  useState<number>(0)
+    
 
-
+    
     //close add group form
     const closeModal = () =>{
         setOpenModal(false)
@@ -72,6 +85,29 @@ export default function Groups() {
     const slotModal = () => {
         setIsOpenDeteils(false)
         setOpenSlotModalForm(true)
+    }
+
+    const slotSpace = (data: {id: number})=>{
+        setIsOpenDeteils(false);
+        setOpenSpaceForm(true);
+        setSlotId(data.id)
+    }
+
+    //edit space data
+    const getSendSpaceEditData = (data: {spaceId: number, spaceName: string})=>{
+        setIsShowEditSpace(true);
+        setSpaceEditData(data);
+    }
+
+    const getDeleteSpaceData = (data: {spaceId:number})=>{
+        setisShowDeleteSpaceDialog(true);
+        setSpaceDeleteId(data.spaceId);
+    }
+
+    const closeSpaceForm = () => {
+        setOpenSpaceForm(false);
+        setIsShowEditSpace(false);
+        setIsOpenDeteils(true);
     }
 
     const slotAddForm = () =>{
@@ -85,6 +121,8 @@ export default function Groups() {
         setDeleteSlot_id(id)
         setDialogOpen(true)
     }
+
+
 
     const clearActionSlot = () =>{
         setIsLoading(false)
@@ -111,6 +149,7 @@ export default function Groups() {
       //search group ny name
     const searchData = (searchInfo: string) => {
         setSearch(searchInfo)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const searchResult = getAllData.filter((data: any)=>{
             return (
                 data.group_name.toLocaleLowerCase().includes(searchInfo.toLocaleLowerCase())
@@ -124,6 +163,9 @@ export default function Groups() {
         setOpenSlotModalFormEdit(true)
         setIsOpenDeteils(false)
     }
+    
+
+    
 
 
     //get all group data
@@ -145,8 +187,6 @@ export default function Groups() {
         }
     }
 
-
-    //get slot data by group id
     const openDeteils = async (data: {id: number})=>{
         const {id} = data
         setLoadingDetiels(true)
@@ -167,6 +207,52 @@ export default function Groups() {
         setIsOpenDeteils(true)
     }
 
+    const getSpaceSendData = async (data: {slotId: number, spaceId: number, slot_name: string})=>{
+        setIsLoading(true)
+        const sendData = {
+            slotId: data.slotId,
+            spaceId: data.spaceId,
+            slot_name: data.slot_name
+        }
+        try {
+            const res = await axios.post(`${API_LINK}/addSpace`, sendData, {
+                headers: {
+                    'Content-type':'application/x-www-form-urlencoded',
+                    "authorization" : `bearer ${token}`
+                }
+            })
+            if(res.status===200){
+                closeSpaceForm()
+                setIsLoading(false)
+                openDeteils({id: group_id});
+                setIsShowMessageSuccess(true)
+            }
+        } catch (error) {
+            setIsLoading(false)
+            return error;
+        }
+    }
+
+    const getSpaceEditData = async (data: {slotId: number, spaceId: number, slot_name: string})=>{
+        setIsLoading(true)
+        try {
+            const res = await axios.put(`${API_LINK}/editSpace`, data, {
+                headers:{
+                    'Content-type':'application/x-www-form-urlencoded',
+                    "authorization" : `bearer ${token}`,
+                }
+            })
+            if(res.status===200){
+                closeSpaceForm()
+                setIsLoading(false)
+                openDeteils({id: group_id});
+                setIsShowMessageSuccess(true)
+            }
+        } catch (error) {
+            setIsLoading(false)
+            return error;
+        }
+    }
     
     const getDataSlot = async (data: {slot_id: number, group_id: number, slot_name: string}) =>{
         setIsLoading(true)
@@ -263,6 +349,30 @@ export default function Groups() {
         }
     }
 
+    const getActionSpaceDelete = async (data: {isDelete: boolean, id: number})=>{
+        const {isDelete, id} = data
+        if(isDelete){
+            try {
+                const res = await axios.delete(`${API_LINK}/deleteSpace`, {
+                    headers:{
+                            'Content-type':'application/x-www-form-urlencoded',
+                            "authorization" : `bearer ${token}`,
+                        },
+                    data: {id: id}
+                })
+                if(res.status===200){
+                    openDeteils({id: group_id});
+                    setisShowDeleteSpaceDialog(false)
+                    setIsShowMessageSuccess(true)
+                }
+                
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        setisShowDeleteSpaceDialog(false)
+    }
+
     //delete slot function
     const getActionDeleteSlot = async (data: { isDelete: boolean, id: number })=>{
         const {isDelete, id} = data
@@ -326,6 +436,7 @@ export default function Groups() {
 
     useEffect(()=>{
         getGroupData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 
     useEffect(() => {
@@ -348,8 +459,17 @@ export default function Groups() {
                 {isShowMessageSuccess&&<AlertSuccess isOpen={isShowMessageSuccess} message='Successfully'/>}
                 
                 {isDeleteOpen&&<Dialog isOPen={isDeleteOpen} title="Are you sure you want to delete this group?" setAction={getActionDelete} id={deleteId} isLoading={deleteLoading} />}
+
+              
+                {isOpenDeteils&&<SlotDeteils sendDataDelete={getDeleteSpaceData} sendDataEdit={getSendSpaceEditData} isOpenModalSpace={slotSpace} isOpenDialog={isOpenDeleteDialog} isLoadingDetiels={isLoadingDetiels} isOpenModal={slotModal} isOpen={isOpenDeteils} closeModal={()=>setIsOpenDeteils(false)} title='Slot Details' getSlotData={slotData} getEditData={getEditData}/>}
                 
-                {isOpenDeteils&&<SlotDeteils isOpenDialog={isOpenDeleteDialog} isLoadingDetiels={isLoadingDetiels} isOpenModal={slotModal} isOpen={isOpenDeteils} closeModal={()=>setIsOpenDeteils(false)} title='Slot Details' getSlotData={slotData} getEditData={getEditData}/>}
+                {isOpenSpaceForm&&<AddSpaceModalForm isOpen={isOpenSpaceForm} sendData={getSpaceSendData} isClose={closeSpaceForm} selectedSlotId = {slotId} isLoading={isLoading} title='Add Space' />}
+
+                {isShowEditSpace&&<AddSpaceModalForm editData={spaceEditData} isOpen={isShowEditSpace} sendData={getSpaceEditData} isClose={closeSpaceForm} selectedSlotId = {slotId} isLoading={isLoading} title='Edit Space' />}
+
+                {isShowDeleteSpaceDialog&&<Dialog isOPen={isShowDeleteSpaceDialog} title="Are you sure you want to delete this Space?" setAction={getActionSpaceDelete} id={spaceDeleteId} isLoading={deleteLoading} />}
+
+
                 
                 {isDialogOpen&&<Dialog isOPen={isDialogOpen} title='Are you sure you want to delete this slot?' setAction={getActionDeleteSlot} id={deleteSlot_id} />}
 

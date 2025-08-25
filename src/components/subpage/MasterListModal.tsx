@@ -19,6 +19,12 @@ type Tslot = {
     slot_name: string
 }
 
+type Tspace = {
+    space_id: number,
+    space_name: string
+    slot_id: number
+}
+
 type TselectTag = {
     value: string,
     text: string
@@ -33,6 +39,7 @@ type TsendData = {
     lastname: string|null,
     slot_id: number|null,
     group_id: number|null,
+    space_id: number|null
     born: string|null,
     died: string|null,
     suffix: string|null,
@@ -46,6 +53,7 @@ type TeditData = {
     lastname: string,
     slot_id: number,
     group_id: number,
+    space_id: number,
     born: string,
     died: string,
     suffix: string,
@@ -62,20 +70,24 @@ interface ContentTyps {
     closeModal: ()=>void;
     slots: Tslot[],
     groups: Tgroups[],
+    spaces: Tspace[];
     sendData: (data: TsendData) => void;
     onProgressImage: number;
     editData?: TeditData
 }
 
 
-const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=>{}, groups, slots, sendData=()=>{}, onProgressImage, editData}) => {
+const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=>{}, groups, slots, spaces, sendData=()=>{}, onProgressImage, editData}) => {
     //initialize data
     const [files, setFiles] = useState<File | null>(editData?.image_name ?? null);
     const [imagePreview, setImagePreview] = useState<string | null>(editData?.file_name??null);
     const [groups_id, setGroups] = useState<TselectTag[]>([])
     const [slots_id, setSlots_id] = useState<TselectTag[]>([])
+    const [spaceIds,setSpaceIds] = useState<TselectTag[]>([]);
     const [group_id, setGroupId] = useState<number>(editData?.group_id ?? 0);
     const [slot_id, setSlot_id] = useState<number>(editData?.slot_id ?? 0);
+    const [space_id, setSpace_id] = useState<number>(editData?.space_id ?? 0);
+    const [isEditSpace, setIsEditSpace] = useState<boolean>(editData===undefined)
     const [firstname, setfirstname] = useState<string>(editData?.firstname??"");
     const [lastname, setlastname] = useState<string>(editData?.lastname??"");
     const [middlename, setmiddlename] = useState<string>(editData?.middlename??"");
@@ -129,14 +141,28 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
     const setGroupsFunc = (id: number) =>{
         setGroupId(id)
         getSlot(id)
-        
     }
+
+    const setSpaceFunc = (id: number)=>{
+        setSlot_id(id);
+        getSpace(id);
+    }
+
+    const getSpace = (id: number)=>{
+        const spaces_id = spaces.filter((data: Tspace)=> {return id === data.slot_id})
+        const displaySpace = spaces_id.map((data: Tspace)=>{
+            return {text: capitalize(data.space_name), value: data.space_id.toString()}
+        })
+        setSpaceIds(displaySpace);
+    }
+
     const getSlot = async (id: number) =>{
         const slots_id = slots.filter((data: Tslot)=> {return id === data.group_id})
         const displaySlot = slots_id.map((data: Tslot)=>{
             return {text: capitalize(data.slot_name), value: data.id.toString()}
         })
-        setSlot_id(editData===undefined?slots_id[0]?.id:slot_id)
+        setSlot_id(isEditSpace?slots_id[0]?.id:slot_id)
+        getSpace(isEditSpace?slots_id[0]?.id:slot_id);
         setSlots_id(displaySlot)
     }
 
@@ -149,6 +175,7 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
         const lastname = formData.get("lastname");
         const group = formData.get("group_id");
         const slot = formData.get("slot_id");
+        const space = formData.get("space_id");
         const born = formData.get("born");
         const died = formData.get("died");
         const suffix = formData.get("suffix")
@@ -163,6 +190,7 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
             lastname: typeof lastname === "string" ? lastname : null,
             group_id: typeof group === "string" ? parseInt(group) : null,
             slot_id: typeof slot === "string" ? parseInt(slot) : null,
+            space_id: typeof space === "string" ? parseInt(space) : null,
             born: typeof born === "string" ? born : null,
             died: typeof died === "string" ? died : null,
             suffix: typeof suffix === "string" ? suffix : null,
@@ -223,6 +251,8 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
 
     useEffect(()=>{
         getGroupData()
+        setIsEditSpace(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (
@@ -248,9 +278,14 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
                                     <ImageInputCard hasError={hasError} onProgressImage={onProgressImage} imgFile={imagePreview} onRemove={getRemove} isEdit={isEdit}/>
                                 }
                                 <div className='flex flex-row gap-x-2'>
-                                    <SelectTag flex={'flex-col w-[50%]'} selector={'group_id'} label={'Group'} datas={groups_id} valueData={group_id.toString()} onChange={e=>setGroupsFunc(parseInt(e.target.value))} hasError={errors.group_idError} errorMessage={errorMessage}/>
-                                    {slots_id.length===0&&<InputTag selector='slot_id' type='text' flex="flex-col w-[50%]" valueData='No Slot Available' label="slot" disabled={true} hasError={errors.slot_idError} errorMessage={errorMessage}/>}    
-                                    {slots_id.length!==0&&<SelectTag flex={'flex-col w-[50%]'} selector={'slot_id'} label={'slot'} datas={slots_id} disabled={slots_id.length===0} valueData={slot_id?.toString()} onChange={e=>setSlot_id(parseInt(e.target.value))}/>}
+                                    <SelectTag flex={'flex-col w-[33.33%]'} selector={'group_id'} label={'Group'} datas={groups_id} valueData={group_id.toString()} onChange={e=>setGroupsFunc(parseInt(e.target.value))} hasError={errors.group_idError} errorMessage={errorMessage}/>
+
+                                    {slots_id.length===0&&<InputTag selector='slot_id' type='text' flex="flex-col w-[33.33%]" valueData='No Slot Available' label="slot" disabled={true} hasError={errors.slot_idError} errorMessage={errorMessage}/>}    
+                                    {slots_id.length!==0&&<SelectTag flex={'flex-col w-[33.33%]'} selector={'slot_id'} label={'slot'} datas={slots_id} disabled={slots_id.length===0} valueData={slot_id?.toString()} onChange={e=>setSpaceFunc(parseInt(e.target.value))}/>}
+
+                                    {spaceIds.length===0&&<InputTag selector='space_id' type='text' flex="flex-col w-[33.33%]" valueData='No Slot Available' label="Space" disabled={true} hasError={errors.slot_idError} errorMessage={errorMessage}/>}    
+                                    {spaceIds.length!==0&&<SelectTag flex={'flex-col w-[33.33%]'} selector={'space_id'} label={'Space'} datas={spaceIds} valueData={space_id?.toString()} onChange={e=>setSpace_id(parseInt(e.target.value))} />}
+
                                 </div>
                                 <div className='flex flex-row gap-x-2'>
                                     <InputTag selector='firstname' type='text' flex='flex-col' label='Firstname' hasError={errors.firstname} errorMessage={errorMessage} valueData={firstname} onChange={e=>setfirstname(e.target.value)} />
