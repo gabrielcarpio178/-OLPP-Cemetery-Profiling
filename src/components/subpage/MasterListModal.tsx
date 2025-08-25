@@ -5,6 +5,7 @@ import InputTag from '../inputData/InputTag';
 import SelectTag from '../inputData/SelectTag';
 import ButtonTag from '../inputData/ButtonTag';
 import ImageInputCard from './ImageInputCard';
+import AddDiePersonForm from './../subpage/AddDiePersonForm';
 import axios from 'axios';
 import moment from "moment"
 
@@ -88,12 +89,8 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
     const [slot_id, setSlot_id] = useState<number>(editData?.slot_id ?? 0);
     const [space_id, setSpace_id] = useState<number>(editData?.space_id ?? 0);
     const [isEditSpace, setIsEditSpace] = useState<boolean>(editData===undefined)
-    const [firstname, setfirstname] = useState<string>(editData?.firstname??"");
-    const [lastname, setlastname] = useState<string>(editData?.lastname??"");
-    const [middlename, setmiddlename] = useState<string>(editData?.middlename??"");
-    const [suffix, setsuffix] = useState<string>(editData?.suffix??"");
-    const [born, setborn] = useState<string>(editData!==undefined?moment(editData?.born).format("YYYY-MM-DD"):"");
-    const [died, setdied] = useState<string>(editData!==undefined?moment(editData?.died).format("YYYY-MM-DD"):"");
+    const [personNum, setPersonNum] = useState<number>(1);
+    
     
     //interaction
     const [buttonLoading, setButtonLoading] = useState(false)
@@ -249,6 +246,10 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
         setHasError(true)
     }
 
+    const addForm = () => {
+        setPersonNum(prevNum => prevNum + 1);
+    };
+
     useEffect(()=>{
         getGroupData()
         setIsEditSpace(true);
@@ -287,21 +288,10 @@ const MasterListModal: React.FC<ContentTyps> = ({isOpen, title, closeModal = ()=
                                     {spaceIds.length!==0&&<SelectTag flex={'flex-col w-[33.33%]'} selector={'space_id'} label={'Space'} datas={spaceIds} valueData={space_id?.toString()} onChange={e=>setSpace_id(parseInt(e.target.value))} />}
 
                                 </div>
-                                <div className='flex flex-row gap-x-2'>
-                                    <InputTag selector='firstname' type='text' flex='flex-col' label='Firstname' hasError={errors.firstname} errorMessage={errorMessage} valueData={firstname} onChange={e=>setfirstname(e.target.value)} />
-                                    <InputTag selector='lastname' type='text' flex='flex-col' label='Lastname' hasError={errors.lastname} errorMessage={errorMessage} valueData={lastname} onChange={e=>setlastname(e.target.value)} />
-                                </div>
-                                <div className='flex flex-row gap-x-2'>
-                                    <InputTag selector='suffix' type='text' flex='flex-col' label='Suffix' hasError={errors.suffix} errorMessage={errorMessage} valueData={suffix} onChange={e=>setsuffix(e.target.value)} />
-                                    <InputTag selector='middlename' type='text' flex='flex-col' label='Middle Initial' hasError={errors.middlename} errorMessage={errorMessage} valueData={middlename} onChange={e=>setmiddlename(e.target.value)} />
-                                </div>
-                                
-                                <p className='text-sm text-black/50'>Suffix available "JR", "SR", "II", "III", "IV","V".  "N/A" if no suffix</p>
-                                <div className='flex flex-row gap-x-3'>
-                                    <InputTag selector='born' type='date' flex='flex-col w-full' label='born' hasError={errors.born} errorMessage={errorMessage} valueData={born} onChange={e=>setborn(e.target.value)}/>
-                                    <InputTag selector='died' type='date' flex='flex-col w-full' label='died' hasError={errors.died} errorMessage={errorMessage} valueData={died} onChange={e=>setdied(e.target.value)} />
-                                </div>
-
+                                {Array.from({ length: personNum }).map((_, index) => (
+                                    <AddDiePersonForm key={index} />
+                                ))}
+                                <ButtonTag type='button' color='bg-blue-500 hover:bg-blue-600' text='Add' onClick={addForm}/>
                                 <ButtonTag type='submit' text='Submit' disabled={buttonLoading}/>
                             </form>
                             
